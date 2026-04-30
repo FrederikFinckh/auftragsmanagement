@@ -1,6 +1,6 @@
 # Phase 4 – REST API: Instanz-Werte Auto-Save & Instanz-Details
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 1–3 abgeschlossen
 
 ---
