@@ -34,7 +34,7 @@ frontend/src/
 - `AuftragItem`: Zeigt Auftragsnummer (fett) + Kundenname + ⚠️-Icon wenn `materialVeraendert=true`
 - Klick auf Auftrag → öffnet Auftrag-Tab im Mittelbereich (via Callback/Context)
 - `AuftragDialog`: Schritt 1 (Formular mit Validierung) → Schritt 2 (Bestätigung) → API-Call
-- Autocomplete für Materialnummer-Auswahl (lädt aus `/api/materialien`)
+- Autocomplete für Materialnummer-Auswahl (lädt aus `/harald/api/materialien`)
 - Nach erfolgreichem Anlegen: Liste neu laden, neuen Auftrag-Tab öffnen
 
 ---

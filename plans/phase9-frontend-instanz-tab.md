@@ -32,13 +32,13 @@ frontend/src/
 
 ## Kernaufgaben
 
-- `InstanzTab` lädt Instanz-Detail via `GET /api/instanzen/{id}`
+- `InstanzTab` lädt Instanz-Detail via `GET /harald/api/instanzen/{id}`
 - `InstanzInfoTabelle`: Datentabelle mit Datum, Auftragsnummer, Kunde, Materialnummer (gemäß `ui_spec.md` Abschnitt 6.3)
 - `PruefargumentFormular`: rendert je nach `typ` das passende Eingabefeld
-- **Auto-Save**: bei `onChange` (mit 300 ms Debounce) → `PATCH /api/instanzen/{id}/werte/{wertId}`
+- **Auto-Save**: bei `onChange` (mit 300 ms Debounce) → `PATCH /harald/api/instanzen/{id}/werte/{wertId}`
 - Veraltete Werte (`veraltet=true`): read-only anzeigen, visuell als „veraltet" markiert (z.B. durchgestrichen oder grau mit Hinweistext)
 - Warn-Banner oben wenn `materialVeraendert=true`: `„⚠️ Die Materialnummer wurde seit Auftragserstellung geändert"`
-- Checkbox „Kontrolle abgeschlossen" am Ende → `PATCH /api/instanzen/{id}/abgeschlossen`
+- Checkbox „Kontrolle abgeschlossen" am Ende → `PATCH /harald/api/instanzen/{id}/abgeschlossen`
 - Nach Setzen von „abgeschlossen": Status-Icon in Übersichtskarte (Phase 8) aktualisieren
 
 ---

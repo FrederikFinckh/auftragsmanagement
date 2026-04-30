@@ -41,8 +41,9 @@ frontend/src/
 - Sidebar-Breite als `useState` (200–600 px, Standard 350 px)
 - Sidebar ein-/ausklappen via Footer-Buttons
 - `ResizeHandle`: `onMouseDown` → `mousemove`/`mouseup` auf `document`
-- Vite Dev-Proxy: `/api` → `http://localhost:8080` in `vite.config.ts`
-- `api/client.ts`: Basis-URL `/api`, JSON-Header, Fehler als `Error` werfen
+- Vite Dev-Proxy: `/harald/api` → `http://localhost:8080` in `vite.config.ts` (bereits konfiguriert)
+- Vite `base: '/harald/'` (bereits konfiguriert)
+- `api/client.ts`: Basis-URL `/harald/api`, JSON-Header, Fehler als `Error` werfen
 
 ---
 
@@ -52,4 +53,4 @@ frontend/src/
 - [ ] Sidebars können per Footer-Button ein-/ausgeklappt werden
 - [ ] Resize-Griff funktioniert (Drag ändert Sidebar-Breite)
 - [ ] MUI Theme ist aktiv (secondary.main sichtbar in Header/Footer)
-- [ ] API-Proxy leitet `/api/*` korrekt an Backend weiter
+- [ ] API-Proxy leitet `/harald/api/*` korrekt an Backend weiter

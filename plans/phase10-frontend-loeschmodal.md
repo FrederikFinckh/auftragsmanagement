@@ -36,7 +36,7 @@ Schritt 2 – Force-Bestätigung (nach Klick auf „Trotzdem löschen"):
   [Abbrechen]  [Endgültig löschen] (nur aktiv wenn Eingabe == Materialnummer)
 
 Nach Bestätigung:
-  API-Call DELETE /api/materialien/{id}?force=true
+  API-Call DELETE /harald/api/materialien/{id}?force=true
   Erfolgsmeldung: „Materialnummer und N Aufträge wurden gelöscht"
   Dialog schließt, Liste wird neu geladen
 ```

@@ -118,6 +118,9 @@ KONTROLLHAKEN | TOLERANZ | ZAHLWERT | TEXT
 
 ## REST API Übersicht
 
+> **Context-Path:** `/harald` — Alle API-Pfade sind relativ zum Context-Path.
+> Die vollständige URL ist also `http://localhost:8080/harald/api/...`.
+
 | Methode | Pfad | Beschreibung |
 |---|---|---|
 | `GET` | `/api/materialien` | Alle Materialnummern |
@@ -230,11 +233,15 @@ Der SHA256-Check stellt sicher, dass `test.sh` nicht verändert wurde.
 
 ## Entwicklung starten
 
+> **Context-Path:** Die App wird unter `/harald` ausgeliefert.
+> - Produktion: `http://localhost:8080/harald/` (Frontend wird in `static/` kopiert)
+> - Dev-Modus: `http://localhost:5173/harald/` (Vite Proxy → `localhost:8080`)
+
 ```bash
-# Backend starten (Port 8080)
+# Backend starten (Port 8080, Context-Path /harald)
 ./gradlew bootRun
 
-# Frontend Dev-Server starten (Port 5173, Proxy → 8080)
+# Frontend Dev-Server starten (Port 5173, Proxy → 8080/harald/api)
 cd frontend && pnpm dev
 
 # Vollständigen Build erstellen (Frontend wird in static/ kopiert)

@@ -49,7 +49,7 @@ TabContext:
 - Leerzustand (keine Tabs): zentrierte Meldung `„Auftrag auswählen, um ihn hier zu öffnen"`
 - Obere Tab-Zeile: horizontal scrollbar, jeder Tab mit Schließen-Button
 - Untere Tab-Zeile: erster Tab immer „Übersicht" (nicht schließbar), dann Instanz-Tabs
-- `AuftragUebersicht`: lädt Instanzen via `GET /api/auftraege/{id}/instanzen`, zeigt Karten-Grid
+- `AuftragUebersicht`: lädt Instanzen via `GET /harald/api/auftraege/{id}/instanzen`, zeigt Karten-Grid
 - `InstanzKarte`: Instanz-Nr, Materialnummer, Status-Icon (grün ✓ / grau ○), read-only Prüfargumente darunter, Warn-Icon wenn `materialVeraendert=true`
 - Klick auf Karte → öffnet Instanz-Tab in unterer Zeile
 
