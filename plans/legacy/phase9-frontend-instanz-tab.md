@@ -1,6 +1,6 @@
 # Phase 9 – Frontend: Instanz-Tab (Prüfargumente ausfüllen, Auto-Save)
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 5–8 abgeschlossen
 
 ---
