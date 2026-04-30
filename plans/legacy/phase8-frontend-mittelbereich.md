@@ -1,6 +1,6 @@
 # Phase 8 – Frontend: Mittelbereich (Doppelte Tab-Zeile + Übersichtskarten)
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 5–7 abgeschlossen
 
 ---
