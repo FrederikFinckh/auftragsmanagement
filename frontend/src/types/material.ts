@@ -45,6 +45,7 @@ export interface DeleteResult {
   success: boolean;
   message: string;
   affectedAuftraege: number;
+  affectedAuftragIds: number[];
 }
 
 // Hilfsfunktion: Leeres Prüfargument erstellen

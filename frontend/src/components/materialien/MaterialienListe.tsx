@@ -5,11 +5,6 @@ import {
   TextField,
   List,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Alert,
   InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -17,11 +12,15 @@ import AddIcon from '@mui/icons-material/Add';
 import LoadingSpinner from '../common/LoadingSpinner';
 import MaterialItem from './MaterialItem';
 import MaterialDialog from './MaterialDialog';
-import { getMaterialien, deleteMaterial } from '../../api/materialien';
-import type { Materialnummer } from '../../types/material';
+import MaterialLoeschenDialog from './MaterialLoeschenDialog';
+import { getMaterialien } from '../../api/materialien';
+import { useTabContext } from '../../context/TabContext';
+import type { Materialnummer, DeleteResult } from '../../types/material';
 
 // Listenbereich der rechten Seitenleiste für Materialien
 export default function MaterialienListe() {
+  const { closeAuftragTab } = useTabContext();
+
   const [materialien, setMaterialien] = useState<Materialnummer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,12 +32,7 @@ export default function MaterialienListe() {
 
   // Lösch-Zustand
   const [deleteTarget, setDeleteTarget] = useState<Materialnummer | null>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deleteForceOpen, setDeleteForceOpen] = useState(false);
-  const [deleteForceCount, setDeleteForceCount] = useState(0);
-  const [deleteForceInput, setDeleteForceInput] = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Materialien laden
   const loadMaterialien = useCallback(async () => {
@@ -88,58 +82,18 @@ export default function MaterialienListe() {
   // Löschen starten
   const handleDelete = (material: Materialnummer) => {
     setDeleteTarget(material);
-    setDeleteError(null);
-    setDeleteConfirmOpen(true);
+    setDeleteDialogOpen(true);
   };
 
-  // Einfaches Löschen bestätigen
-  const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return;
-
-    setDeleting(true);
-    setDeleteError(null);
-
-    try {
-      await deleteMaterial(deleteTarget.id, false);
-      setDeleteConfirmOpen(false);
-      setDeleteTarget(null);
-      loadMaterialien();
-    } catch (err) {
-      // Prüfen ob IN_USE Fehler (409)
-      const message = err instanceof Error ? err.message : '';
-      if (message.includes('verwendet') || message.includes('409')) {
-        // Force-Lösch-Dialog öffnen
-        setDeleteConfirmOpen(false);
-        // Versuche die Anzahl aus der Fehlermeldung zu extrahieren
-        const countMatch = message.match(/(\d+)/);
-        setDeleteForceCount(countMatch ? parseInt(countMatch[1], 10) : 0);
-        setDeleteForceInput('');
-        setDeleteForceOpen(true);
-      } else {
-        setDeleteError(message || 'Fehler beim Löschen');
-      }
-    } finally {
-      setDeleting(false);
+  // Nach Löschung: betroffene Auftrag-Tabs schließen, Liste neu laden
+  const handleDeleted = (result: DeleteResult) => {
+    // Betroffene Auftrag-Tabs schließen
+    if (result.affectedAuftragIds && result.affectedAuftragIds.length > 0) {
+      result.affectedAuftragIds.forEach((auftragId) => {
+        closeAuftragTab(auftragId);
+      });
     }
-  };
-
-  // Force-Löschung bestätigen
-  const handleForceDelete = async () => {
-    if (!deleteTarget) return;
-
-    setDeleting(true);
-    setDeleteError(null);
-
-    try {
-      await deleteMaterial(deleteTarget.id, true);
-      setDeleteForceOpen(false);
-      setDeleteTarget(null);
-      loadMaterialien();
-    } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : 'Fehler beim Löschen');
-    } finally {
-      setDeleting(false);
-    }
+    loadMaterialien();
   };
 
   return (
@@ -214,67 +168,13 @@ export default function MaterialienListe() {
         onSaved={handleSaved}
       />
 
-      {/* Einfacher Lösch-Bestätigungsdialog */}
-      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Material löschen?</DialogTitle>
-        <DialogContent>
-          {deleteError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {deleteError}
-            </Alert>
-          )}
-          <Typography>
-            Soll die Materialnummer „{deleteTarget?.nummer}" wirklich gelöscht werden?
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">
-            Abbrechen
-          </Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained" disabled={deleting}>
-            {deleting ? 'Wird gelöscht...' : 'Löschen'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Force-Lösch-Bestätigungsdialog */}
-      <Dialog open={deleteForceOpen} onClose={() => setDeleteForceOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Material wird verwendet</DialogTitle>
-        <DialogContent>
-          {deleteError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {deleteError}
-            </Alert>
-          )}
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            Diese Materialnummer wird in {deleteForceCount} Auftrag{deleteForceCount !== 1 ? 'en' : ''} verwendet.
-            Beim erzwungenen Löschen werden auch alle diese Aufträge gelöscht!
-          </Alert>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Geben Sie „{deleteTarget?.nummer}" ein, um das Löschen zu bestätigen:
-          </Typography>
-          <TextField
-            size="small"
-            fullWidth
-            value={deleteForceInput}
-            onChange={(e) => setDeleteForceInput(e.target.value)}
-            placeholder={deleteTarget?.nummer || ''}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteForceOpen(false)} color="inherit">
-            Abbrechen
-          </Button>
-          <Button
-            onClick={handleForceDelete}
-            color="error"
-            variant="contained"
-            disabled={deleting || deleteForceInput !== deleteTarget?.nummer}
-          >
-            {deleting ? 'Wird gelöscht...' : 'Löschen erzwingen'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Lösch-Dialog (einfach + Force) */}
+      <MaterialLoeschenDialog
+        material={deleteTarget}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onDeleted={handleDeleted}
+      />
     </>
   );
 }

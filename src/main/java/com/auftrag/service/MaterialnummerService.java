@@ -178,9 +178,12 @@ public class MaterialnummerService {
                     "Materialnummer wird in " + count + " Auftrag/Aufträgen verwendet", count);
         }
 
+        // IDs der betroffenen Aufträge erfassen (vor dem Löschen)
+        List<Long> affectedIds = List.of();
         if (force && count > 0) {
             // Alle Aufträge mit dieser Materialnummer löschen (Cascade löscht Instanzen + Werte)
             List<Auftrag> auftraege = auftragRepository.findByMaterialnummerId(id);
+            affectedIds = auftraege.stream().map(Auftrag::getId).toList();
             auftragRepository.deleteAll(auftraege);
         }
 
@@ -194,6 +197,7 @@ public class MaterialnummerService {
             result.setMessage("Materialnummer wurde gelöscht");
         }
         result.setAffectedAuftraege(force ? count : 0);
+        result.setAffectedAuftragIds(affectedIds);
         return result;
     }
 
