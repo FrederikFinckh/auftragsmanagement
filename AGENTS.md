@@ -195,9 +195,9 @@ KONTROLLHAKEN | TOLERANZ | ZAHLWERT | TEXT
 
 | Phase | Dokument | Inhalt | Status |
 |---|---|---|---|
-| 1 | `plans/phase1-datenmodell-backend.md` | JPA Entities, Repositories, SQLite-Config | 🔲 |
-| 2 | `plans/phase2-api-materialien.md` | Materialien CRUD + Sync-Logik + Force-Löschung | 🔲 |
-| 3 | `plans/phase3-api-auftraege.md` | Aufträge + Instanz-Generierung | 🔲 |
+| 1 | `plans/phase1-datenmodell-backend.md` | JPA Entities, Repositories, SQLite-Config | ✅ |
+| 2 | `plans/phase2-api-materialien.md` | Materialien CRUD + Sync-Logik + Force-Löschung | ✅ |
+| 3 | `plans/phase3-api-auftraege.md` | Aufträge + Instanz-Generierung | ✅ |
 | 4 | `plans/phase4-api-instanzwerte.md` | Instanz-Werte Auto-Save + Abgeschlossen-Flag | 🔲 |
 | 5 | `plans/phase5-frontend-grundgeruest.md` | Layout, MUI Theme, Sidebar-Resize | 🔲 |
 | 6 | `plans/phase6-frontend-materialien.md` | Rechte Sidebar: Materialliste + Dialog | 🔲 |

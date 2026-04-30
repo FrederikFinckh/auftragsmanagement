@@ -1,6 +1,6 @@
 # Phase 3 – REST API: Aufträge & Instanz-Generierung
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 1 + 2 abgeschlossen
 
 ---
