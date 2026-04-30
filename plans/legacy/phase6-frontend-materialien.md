@@ -1,6 +1,6 @@
 # Phase 6 – Frontend: Rechte Seitenleiste (Materialien)
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 5 abgeschlossen
 
 ---
