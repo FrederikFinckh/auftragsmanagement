@@ -2,6 +2,7 @@
 
 import { apiGet, apiPost, apiPut, apiDelete } from './client';
 import type { Auftrag, AuftragCreate } from '../types/auftrag';
+import type { InstanzUebersicht } from '../types/instanz';
 
 // Alle Aufträge abrufen (sortiert nach id DESC)
 export function getAuftraege(): Promise<Auftrag[]> {
@@ -21,4 +22,9 @@ export function updateAuftrag(id: number, data: AuftragCreate): Promise<Auftrag>
 // Auftrag löschen (Cascade löscht Instanzen + Werte)
 export async function deleteAuftrag(id: number): Promise<void> {
   await apiDelete(`/auftraege/${id}`);
+}
+
+// Weitere Instanzen zu einem bestehenden Auftrag hinzufügen
+export function addInstanzen(auftragId: number, anzahl: number): Promise<InstanzUebersicht[]> {
+  return apiPost<InstanzUebersicht[]>(`/auftraege/${auftragId}/instanzen`, { anzahl });
 }

@@ -149,6 +149,62 @@ public class AuftragService {
         auftragRepository.delete(auftrag);
     }
 
+    // Weitere Instanzen zu einem bestehenden Auftrag hinzufügen
+    @Transactional
+    public List<InstanzUebersichtDto> addInstanzen(Long auftragId, InstanzCreateDto dto) {
+        Auftrag auftrag = findOrThrow(auftragId);
+
+        // Höchste bestehende Instanz-Nummer ermitteln
+        List<Instanz> bestehendeInstanzen = instanzRepository.findByAuftragIdOrderByNummerAsc(auftragId);
+        int hoechsteNummer = bestehendeInstanzen.stream()
+                .mapToInt(Instanz::getNummer)
+                .max()
+                .orElse(0);
+
+        // Prüfargumente der Materialnummer laden
+        Materialnummer materialnummer = auftrag.getMaterialnummer();
+        List<Pruefargument> pruefargumente = List.of();
+        if (materialnummer != null) {
+            pruefargumente = pruefargumentRepository.findByMaterialnummerIdOrderByReihenfolgeAsc(materialnummer.getId());
+        }
+
+        // Neue Instanzen generieren
+        List<Instanz> neueInstanzen = new java.util.ArrayList<>();
+        for (int i = 1; i <= dto.getAnzahl(); i++) {
+            Instanz instanz = new Instanz();
+            instanz.setAuftrag(auftrag);
+            instanz.setNummer(hoechsteNummer + i);
+            instanzRepository.save(instanz);
+
+            // Pro Instanz: für jedes Prüfargument einen InstanzWert anlegen
+            for (Pruefargument arg : pruefargumente) {
+                InstanzWert wert = new InstanzWert();
+                wert.setInstanz(instanz);
+                wert.setPruefargument(arg);
+                wert.setBezeichnung(arg.getBezeichnung());
+                wert.setTyp(arg.getTyp());
+                wert.setKontrollhakenWert(arg.getKontrollhakenWert());
+                wert.setToleranzMin(arg.getToleranzMin());
+                wert.setToleranzMax(arg.getToleranzMax());
+                wert.setZahlwert(arg.getZahlwert());
+                wert.setTextWert(arg.getTextWert());
+                wert.setReihenfolge(arg.getReihenfolge());
+                wert.setVeraltet(false);
+                instanzWertRepository.save(wert);
+            }
+
+            neueInstanzen.add(instanz);
+        }
+
+        // Stückzahl aktualisieren
+        auftrag.setStueckzahl(auftrag.getStueckzahl() + dto.getAnzahl());
+        auftragRepository.save(auftrag);
+
+        return neueInstanzen.stream()
+                .map(this::toUebersichtDto)
+                .collect(Collectors.toList());
+    }
+
     // --- Hilfsmethoden ---
 
     // Auftrag anhand ID suchen oder 404 werfen

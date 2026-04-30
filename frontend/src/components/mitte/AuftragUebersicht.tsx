@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography, Grid, Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { useTabContext } from '../../context/TabContext';
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
 import { getAuftraege } from '../../api/auftraege';
 import InstanzKarte from './InstanzKarte';
 import InstanzLoeschenDialog from '../instanz/InstanzLoeschenDialog';
+import InstanzHinzufuegenDialog from './InstanzHinzufuegenDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
 import type { InstanzUebersicht } from '../../types/instanz';
 
@@ -20,6 +22,9 @@ export default function AuftragUebersicht() {
   // Lösch-Dialog-Zustand
   const [deleteTarget, setDeleteTarget] = useState<InstanzUebersicht | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Hinzufügen-Dialog-Zustand
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   // Instanzen und Materialnummer laden
   const loadData = useCallback(async () => {
@@ -71,6 +76,11 @@ export default function AuftragUebersicht() {
     loadData();
   };
 
+  // Nach Hinzufügen: Liste neu laden
+  const handleInstanzenAdded = (_neueInstanzen: InstanzUebersicht[]) => {
+    loadData();
+  };
+
   if (aktiverAuftragTabId === null) return null;
 
   if (loading) {
@@ -85,28 +95,41 @@ export default function AuftragUebersicht() {
     );
   }
 
-  if (instanzen.length === 0) {
-    return (
-      <Typography color="text.secondary" sx={{ p: 3, textAlign: 'center' }}>
-        Keine Instanzen vorhanden
-      </Typography>
-    );
-  }
-
   return (
     <Box sx={{ p: 2 }}>
-      <Grid container spacing={2}>
-        {instanzen.map((instanz) => (
-          <Grid key={instanz.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-            <InstanzKarte
-              instanz={instanz}
-              materialnummerNummer={materialnummerNummer}
-              onClick={() => handleKarteClick(instanz)}
-              onDelete={handleDelete}
-            />
-          </Grid>
-        ))}
-      </Grid>
+      {/* Kopfzeile mit Instanzen-Anzahl und Hinzufügen-Button */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          {instanzen.length} {instanzen.length === 1 ? 'Instanz' : 'Instanzen'}
+        </Typography>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setAddDialogOpen(true)}
+        >
+          Hinzufügen
+        </Button>
+      </Box>
+
+      {instanzen.length === 0 ? (
+        <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+          Keine Instanzen vorhanden
+        </Typography>
+      ) : (
+        <Grid container spacing={2}>
+          {instanzen.map((instanz) => (
+            <Grid key={instanz.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <InstanzKarte
+                instanz={instanz}
+                materialnummerNummer={materialnummerNummer}
+                onClick={() => handleKarteClick(instanz)}
+                onDelete={handleDelete}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
       {/* Lösch-Dialog */}
       <InstanzLoeschenDialog
@@ -115,6 +138,14 @@ export default function AuftragUebersicht() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onDeleted={handleDeleted}
+      />
+
+      {/* Hinzufügen-Dialog */}
+      <InstanzHinzufuegenDialog
+        auftragId={aktiverAuftragTabId}
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onAdded={handleInstanzenAdded}
       />
     </Box>
   );

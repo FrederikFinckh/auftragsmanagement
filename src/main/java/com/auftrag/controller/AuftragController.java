@@ -2,6 +2,7 @@ package com.auftrag.controller;
 
 import com.auftrag.dto.AuftragCreateDto;
 import com.auftrag.dto.AuftragDto;
+import com.auftrag.dto.InstanzCreateDto;
 import com.auftrag.dto.InstanzUebersichtDto;
 import com.auftrag.service.AuftragService;
 import jakarta.validation.Valid;
@@ -53,5 +54,14 @@ public class AuftragController {
     public ResponseEntity<Void> deleteAuftrag(@PathVariable Long id) {
         auftragService.deleteAuftrag(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Weitere Instanzen zu einem bestehenden Auftrag hinzufügen
+    @PostMapping("/{id}/instanzen")
+    public ResponseEntity<List<InstanzUebersichtDto>> addInstanzen(
+            @PathVariable Long id,
+            @Valid @RequestBody InstanzCreateDto dto) {
+        List<InstanzUebersichtDto> neueInstanzen = auftragService.addInstanzen(id, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(neueInstanzen);
     }
 }
