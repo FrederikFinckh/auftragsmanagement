@@ -122,7 +122,7 @@ Füllt den gesamten verbleibenden horizontalen Platz. Vertikale Flex-Spalte.
 
 Wenn keine Tabs geöffnet sind, zeigt der gesamte Mittelbereich eine einzige zentrierte `h6`-Meldung:
 
-> `„Doppelklick auf einen Auftrag, um ihn hier zu öffnen"`
+> `„Auftrag auswählen, um ihn hier zu öffnen"`
 
 Textfarbe: sekundär.
 
