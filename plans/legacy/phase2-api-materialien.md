@@ -1,6 +1,6 @@
 # Phase 2 – REST API: Materialnummern CRUD
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 1 abgeschlossen
 
 ---
