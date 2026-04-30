@@ -76,7 +76,7 @@ function App() {
               <Box sx={{ width: leftWidth, flexShrink: 0, overflow: 'hidden' }}>
                 <LeftSidebar />
               </Box>
-              <ResizeHandle side="left" onMouseDown={handleLeftResize} />
+              <ResizeHandle onMouseDown={handleLeftResize} />
             </>
           )}
 
@@ -86,7 +86,7 @@ function App() {
           {/* Rechte Seitenleiste */}
           {rightOpen && (
             <>
-              <ResizeHandle side="right" onMouseDown={handleRightResize} />
+              <ResizeHandle onMouseDown={handleRightResize} />
               <Box sx={{ width: rightWidth, flexShrink: 0, overflow: 'hidden' }}>
                 <RightSidebar />
               </Box>

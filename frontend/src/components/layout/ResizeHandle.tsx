@@ -2,12 +2,11 @@ import { Box } from '@mui/material';
 
 interface ResizeHandleProps {
   onMouseDown: (e: React.MouseEvent) => void;
-  side: 'left' | 'right';
 }
 
 // Ziehgriff zum Vergrößern/Verkleinern der Seitenleisten
 // 8px breit, col-resize Cursor, dezente Hervorhebung bei Hover
-export default function ResizeHandle({ onMouseDown, side }: ResizeHandleProps) {
+export default function ResizeHandle({ onMouseDown }: ResizeHandleProps) {
   const handleMouseDown = (e: React.MouseEvent) => {
     // Textauswahl während des Ziehens verhindern
     document.body.style.userSelect = 'none';
@@ -45,8 +44,6 @@ export default function ResizeHandle({ onMouseDown, side }: ResizeHandleProps) {
         '&:active': {
           bgcolor: 'action.selected',
         },
-        // Ziehgriff an der inneren Kante der Seitenleiste
-        order: side === 'left' ? 1 : 0,
       }}
     >
       {/* Drei vertikale Punkte als visueller Indikator */}
