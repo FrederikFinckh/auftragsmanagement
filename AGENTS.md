@@ -201,7 +201,7 @@ KONTROLLHAKEN | TOLERANZ | ZAHLWERT | TEXT
 | 4 | `plans/phase4-api-instanzwerte.md` | Instanz-Werte Auto-Save + Abgeschlossen-Flag | ✅ |
 | 5 | `plans/phase5-frontend-grundgeruest.md` | Layout, MUI Theme, Sidebar-Resize | ✅ |
 | 6 | `plans/phase6-frontend-materialien.md` | Rechte Sidebar: Materialliste + Dialog | ✅ |
-| 7 | `plans/phase7-frontend-auftraege.md` | Linke Sidebar: Auftragsliste + 2-Schritt-Dialog | 🔲 |
+| 7 | `plans/phase7-frontend-auftraege.md` | Linke Sidebar: Auftragsliste + 2-Schritt-Dialog | ✅ |
 | 8 | `plans/phase8-frontend-mittelbereich.md` | Doppelte Tab-Zeile + Übersichtskarten | 🔲 |
 | 9 | `plans/phase9-frontend-instanz-tab.md` | Instanz-Tab: Prüfformular + Auto-Save | 🔲 |
 | 10 | `plans/phase10-frontend-loeschmodal.md` | Lösch-Modal mit Force-Bestätigung | 🔲 |

@@ -1,6 +1,6 @@
 # Phase 7 – Frontend: Linke Seitenleiste (Aufträge)
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 5–6 abgeschlossen
 
 ---
