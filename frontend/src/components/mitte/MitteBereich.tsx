@@ -3,6 +3,7 @@ import { useTabContext } from '../../context/TabContext';
 import AuftragTabLeiste from './AuftragTabLeiste';
 import InstanzTabLeiste from './InstanzTabLeiste';
 import AuftragUebersicht from './AuftragUebersicht';
+import InstanzTab from '../instanz/InstanzTab';
 
 // Haupt-Wrapper für den Mittelbereich mit zwei Tab-Zeilen und Inhaltsbereich
 export default function MitteBereich() {
@@ -27,7 +28,7 @@ export default function MitteBereich() {
   }
 
   // Bestimmt den Inhalt der unteren Tab-Zeile:
-  // - null = Übersicht, number = Instanz-Tab (wird in Phase 9 implementiert)
+  // - null = Übersicht, number = Instanz-Tab
   const showInstanzContent = aktiverAuftragTabId !== null && aktuelleAktiverInstanzTabId !== null;
 
   return (
@@ -52,13 +53,9 @@ export default function MitteBereich() {
           overflow: 'auto',
         }}
       >
-        {showInstanzContent ? (
-          // Instanz-Detail wird in Phase 9 implementiert
-          <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography color="text.secondary">
-              Instanz-Detail (wird in Phase 9 implementiert)
-            </Typography>
-          </Box>
+        {showInstanzContent && aktuelleAktiverInstanzTabId !== null ? (
+          // Instanz-Detail mit Prüfformular
+          <InstanzTab instanzId={aktuelleAktiverInstanzTabId} />
         ) : (
           // Übersicht: Karten-Grid der Instanzen
           <AuftragUebersicht />
