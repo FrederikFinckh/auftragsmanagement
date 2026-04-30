@@ -1,0 +1,24 @@
+# Gradle Build-Artefakte
+build/
+
+# SQLite Datenbank (wird zur Laufzeit erstellt)
+data/auftrag.db
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gradle Cache
+.gradle/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Compiled static resources (werden beim Build kopiert)
+src/main/resources/static/

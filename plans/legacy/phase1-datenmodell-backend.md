@@ -1,6 +1,6 @@
 # Phase 1 – Datenmodell & Backend-Grundstruktur
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** keine
 
 ---
