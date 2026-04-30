@@ -1,16 +1,45 @@
+import { useState, useEffect } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
 import type { InstanzWert } from '../../types/instanz';
 
-// Toleranz-Feld: Min/Max Zahleneingaben nebeneinander
+// Toleranz-Feld: Referenz-Grenzen (Min/Max) als read-only + einzelner Eingabewert
+// Der Eingabewert wird gegen die Grenzen validiert (grün wenn innerhalb, rot wenn außerhalb)
 interface ToleranzFeldProps {
   wert: InstanzWert;
   onChange: (wertId: number, data: Record<string, unknown>) => void;
 }
 
 export default function ToleranzFeld({ wert, onChange }: ToleranzFeldProps) {
-  const handleChange = (field: 'toleranzMin' | 'toleranzMax', value: string) => {
-    const numValue = value === '' ? null : parseFloat(value);
-    onChange(wert.id, { [field]: numValue });
+  // Der eingegebene Ist-Wert wird in zahlwert gespeichert
+  // (toleranzMin/toleranzMax bleiben als Referenz-Grenzen erhalten)
+  const min = wert.toleranzMin;
+  const max = wert.toleranzMax;
+
+  // Lokaler State für die Eingabe, um Flackern durch Auto-Save zu vermeiden
+  const [localValue, setLocalValue] = useState<string>(wert.zahlwert != null ? String(wert.zahlwert) : '');
+
+  // Sync: Wenn der externe Wert sich ändert (z.B. nach Server-Response), lokalen State aktualisieren
+  useEffect(() => {
+    const externalValue = wert.zahlwert != null ? String(wert.zahlwert) : '';
+    // Nur aktualisieren wenn sich der Wert wirklich geändert hat (Server-Bestätigung)
+    if (externalValue !== localValue) {
+      setLocalValue(externalValue);
+    }
+  }, [wert.zahlwert]);
+
+  // Validierung: Wert muss innerhalb der Grenzen liegen
+  const numValue = localValue !== '' ? parseFloat(localValue) : null;
+  const isWithinTolerance = numValue != null && min != null && max != null
+    ? numValue >= min && numValue <= max
+    : null; // null = noch kein Wert eingegeben
+
+  const handleChange = (value: string) => {
+    setLocalValue(value);
+    const parsed = value === '' ? null : parseFloat(value);
+    // Nur senden wenn es eine gültige Zahl ist oder leer
+    if (value === '' || !isNaN(parsed as number)) {
+      onChange(wert.id, { zahlwert: parsed });
+    }
   };
 
   return (
@@ -27,33 +56,39 @@ export default function ToleranzFeld({ wert, onChange }: ToleranzFeldProps) {
       >
         {wert.bezeichnung}
       </Typography>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-        <TextField
-          label="Min"
-          type="number"
-          size="small"
-          value={wert.toleranzMin ?? ''}
-          onChange={(e) => handleChange('toleranzMin', e.target.value)}
-          disabled={wert.veraltet}
-          sx={{ flex: 1 }}
-          slotProps={{
-            htmlInput: { step: 'any' },
-          }}
-        />
-        <Typography variant="body2" color="text.secondary">–</Typography>
-        <TextField
-          label="Max"
-          type="number"
-          size="small"
-          value={wert.toleranzMax ?? ''}
-          onChange={(e) => handleChange('toleranzMax', e.target.value)}
-          disabled={wert.veraltet}
-          sx={{ flex: 1 }}
-          slotProps={{
-            htmlInput: { step: 'any' },
-          }}
-        />
-      </Box>
+
+      {/* Referenz-Grenzen als read-only Anzeige */}
+      <Typography variant="body2" color="text.secondary">
+        Grenzen: {min != null ? min : '—'} – {max != null ? max : '—'}
+      </Typography>
+
+      {/* Einzelner Eingabewert mit Validierung */}
+      <TextField
+        type="number"
+        size="small"
+        label="Ist-Wert"
+        value={localValue}
+        onChange={(e) => handleChange(e.target.value)}
+        disabled={wert.veraltet}
+        error={isWithinTolerance === false}
+        fullWidth
+        slotProps={{
+          htmlInput: { step: 'any' },
+        }}
+      />
+
+      {/* Statusanzeige unter dem Feld */}
+      {isWithinTolerance === true && (
+        <Typography variant="caption" sx={{ color: 'success.main' }}>
+          In Ordnung – innerhalb der Grenzen
+        </Typography>
+      )}
+      {isWithinTolerance === false && (
+        <Typography variant="caption" color="error">
+          Nicht in Ordnung – außerhalb der Grenzen
+        </Typography>
+      )}
+
       {wert.veraltet && (
         <Typography variant="caption" color="text.disabled">
           (veraltet)

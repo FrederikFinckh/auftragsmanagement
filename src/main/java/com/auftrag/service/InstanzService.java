@@ -47,27 +47,32 @@ public class InstanzService {
         }
 
         // Nur die relevanten Felder je nach Typ aktualisieren
+        // xxxSet-Flags unterscheiden zwischen "Feld nicht im JSON" und "Feld = null"
         switch (wert.getTyp()) {
             case KONTROLLHAKEN:
-                if (dto.getKontrollhakenWert() != null) {
+                if (dto.isKontrollhakenWertSet()) {
                     wert.setKontrollhakenWert(dto.getKontrollhakenWert());
                 }
                 break;
             case TOLERANZ:
-                if (dto.getToleranzMin() != null) {
+                if (dto.isToleranzMinSet()) {
                     wert.setToleranzMin(dto.getToleranzMin());
                 }
-                if (dto.getToleranzMax() != null) {
+                if (dto.isToleranzMaxSet()) {
                     wert.setToleranzMax(dto.getToleranzMax());
+                }
+                // Ist-Wert wird in zahlwert gespeichert
+                if (dto.isZahlwertSet()) {
+                    wert.setZahlwert(dto.getZahlwert());
                 }
                 break;
             case ZAHLWERT:
-                if (dto.getZahlwert() != null) {
+                if (dto.isZahlwertSet()) {
                     wert.setZahlwert(dto.getZahlwert());
                 }
                 break;
             case TEXT:
-                if (dto.getTextWert() != null) {
+                if (dto.isTextWertSet()) {
                     wert.setTextWert(dto.getTextWert());
                 }
                 break;

@@ -91,16 +91,25 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick }:
   );
 }
 
-// Wert-Formatierung für read-only Anzeige
+// Wert-Formatierung für read-only Anzeige in Übersichtskarten
 function formatWert(typ: PruefargumentTyp, wert: { kontrollhakenWert: boolean | null; toleranzMin: number | null; toleranzMax: number | null; zahlwert: number | null; textWert: string | null }): string {
   switch (typ) {
     case 'KONTROLLHAKEN':
       return wert.kontrollhakenWert ? '✓' : '✗';
-    case 'TOLERANZ':
-      if (wert.toleranzMin != null && wert.toleranzMax != null) {
-        return `${wert.toleranzMin} – ${wert.toleranzMax}`;
+    case 'TOLERANZ': {
+      // Ist-Wert anzeigen, ggf. mit Grenzen-Referenz
+      const min = wert.toleranzMin;
+      const max = wert.toleranzMax;
+      const val = wert.zahlwert;
+      if (val != null && min != null && max != null) {
+        const ok = val >= min && val <= max;
+        return `${val} (${min}–${max}) ${ok ? '✓' : '✗'}`;
+      }
+      if (min != null && max != null) {
+        return `${min} – ${max}`;
       }
       return '—';
+    }
     case 'ZAHLWERT':
       return wert.zahlwert != null ? String(wert.zahlwert) : '—';
     case 'TEXT':

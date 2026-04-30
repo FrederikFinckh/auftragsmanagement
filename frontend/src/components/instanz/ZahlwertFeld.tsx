@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { TextField, Typography, Box } from '@mui/material';
 import type { InstanzWert } from '../../types/instanz';
 
@@ -8,9 +9,23 @@ interface ZahlwertFeldProps {
 }
 
 export default function ZahlwertFeld({ wert, onChange }: ZahlwertFeldProps) {
+  // Lokaler State für die Eingabe, um Flackern durch Auto-Save zu vermeiden
+  const [localValue, setLocalValue] = useState<string>(wert.zahlwert != null ? String(wert.zahlwert) : '');
+
+  // Sync: Wenn der externe Wert sich ändert (z.B. nach Server-Response), lokalen State aktualisieren
+  useEffect(() => {
+    const externalValue = wert.zahlwert != null ? String(wert.zahlwert) : '';
+    if (externalValue !== localValue) {
+      setLocalValue(externalValue);
+    }
+  }, [wert.zahlwert]);
+
   const handleChange = (value: string) => {
+    setLocalValue(value);
     const numValue = value === '' ? null : parseFloat(value);
-    onChange(wert.id, { zahlwert: numValue });
+    if (value === '' || !isNaN(numValue as number)) {
+      onChange(wert.id, { zahlwert: numValue });
+    }
   };
 
   return (
@@ -30,7 +45,7 @@ export default function ZahlwertFeld({ wert, onChange }: ZahlwertFeldProps) {
       <TextField
         type="number"
         size="small"
-        value={wert.zahlwert ?? ''}
+        value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         disabled={wert.veraltet}
         fullWidth
