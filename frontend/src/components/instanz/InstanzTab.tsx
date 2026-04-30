@@ -214,6 +214,7 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
           <PruefargumentFormular
             werte={instanz.werte}
             onChange={handleWertChange}
+            kontrolleAbgeschlossen={instanz.kontrolleAbgeschlossen}
           />
         </Box>
 

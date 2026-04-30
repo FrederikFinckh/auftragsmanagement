@@ -1,10 +1,11 @@
 import { Box, Typography, Paper, IconButton } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import WarningIcon from '@mui/icons-material/Warning';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { PRUEFARGUMENT_TYP_LABELS } from '../../types/material';
-import type { InstanzUebersicht } from '../../types/instanz';
+import type { InstanzUebersicht, InstanzWert } from '../../types/instanz';
 import type { PruefargumentTyp } from '../../types/material';
 
 // Einzelne Übersichtskarte einer Instanz
@@ -93,9 +94,17 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick, o
               <Typography variant="caption" sx={{ fontWeight: 500, flexGrow: 1 }}>
                 {wert.bezeichnung}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {wert.veraltet ? '(veraltet)' : formatWert(wert.typ, wert)}
-              </Typography>
+              {wert.veraltet ? (
+                <Typography variant="caption" color="text.secondary">
+                  (veraltet)
+                </Typography>
+              ) : instanz.kontrolleAbgeschlossen ? (
+                <WertStatusIcon typ={wert.typ} wert={wert} />
+              ) : (
+                <Typography variant="caption" color="text.secondary">
+                  {formatWertText(wert.typ, wert)}
+                </Typography>
+              )}
             </Box>
           ))
         )}
@@ -104,13 +113,12 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick, o
   );
 }
 
-// Wert-Formatierung für read-only Anzeige in Übersichtskarten
-function formatWert(typ: PruefargumentTyp, wert: { kontrollhakenWert: boolean | null; toleranzMin: number | null; toleranzMax: number | null; zahlwert: number | null; textWert: string | null }): string {
+// Text-Formatierung für read-only Anzeige wenn Kontrolle NICHT abgeschlossen
+function formatWertText(typ: PruefargumentTyp, wert: { kontrollhakenWert: boolean | null; toleranzMin: number | null; toleranzMax: number | null; zahlwert: number | null; textWert: string | null }): string {
   switch (typ) {
     case 'KONTROLLHAKEN':
       return wert.kontrollhakenWert ? '✓' : '✗';
     case 'TOLERANZ': {
-      // Ist-Wert anzeigen, ggf. mit Grenzen-Referenz
       const min = wert.toleranzMin;
       const max = wert.toleranzMax;
       const val = wert.zahlwert;
@@ -129,5 +137,38 @@ function formatWert(typ: PruefargumentTyp, wert: { kontrollhakenWert: boolean | 
       return wert.textWert || '—';
     default:
       return PRUEFARGUMENT_TYP_LABELS[typ];
+  }
+}
+
+// Status-Icon für abgeschlossene Kontrolle in Übersichtskarten
+function WertStatusIcon({ typ, wert }: { typ: PruefargumentTyp; wert: InstanzWert }) {
+  switch (typ) {
+    case 'KONTROLLHAKEN':
+      return wert.kontrollhakenWert
+        ? <CheckCircleIcon sx={{ color: 'success.main', fontSize: 16 }} />
+        : <CancelIcon sx={{ color: 'error.main', fontSize: 16 }} />;
+    case 'TOLERANZ': {
+      const min = wert.toleranzMin;
+      const max = wert.toleranzMax;
+      const val = wert.zahlwert;
+      if (val == null) {
+        // Fehlender Wert → gelbes Warndreieck
+        return <WarningIcon sx={{ color: 'warning.main', fontSize: 16 }} />;
+      }
+      if (min != null && max != null) {
+        const ok = val >= min && val <= max;
+        return ok
+          ? <CheckCircleIcon sx={{ color: 'success.main', fontSize: 16 }} />
+          : <CancelIcon sx={{ color: 'error.main', fontSize: 16 }} />;
+      }
+      // Keine Grenzen definiert → nur Wert anzeigen
+      return <Typography variant="caption" color="text.secondary">{val}</Typography>;
+    }
+    case 'ZAHLWERT':
+      return <Typography variant="caption" color="text.secondary">{wert.zahlwert != null ? String(wert.zahlwert) : '—'}</Typography>;
+    case 'TEXT':
+      return <Typography variant="caption" color="text.secondary">{wert.textWert || '—'}</Typography>;
+    default:
+      return <Typography variant="caption" color="text.secondary">{PRUEFARGUMENT_TYP_LABELS[typ]}</Typography>;
   }
 }

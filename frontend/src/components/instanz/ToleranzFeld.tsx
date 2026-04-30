@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import WarningIcon from '@mui/icons-material/Warning';
 import type { InstanzWert } from '../../types/instanz';
 
 // Toleranz-Feld: Referenz-Grenzen (Min/Max) als read-only + einzelner Eingabewert
-// Der Eingabewert wird gegen die Grenzen validiert (grün wenn innerhalb, rot wenn außerhalb)
+// Wenn kontrolleAbgeschlossen:
+//   - Fehlender Ist-Wert → gelbes Warndreieck
+//   - Wert innerhalb der Toleranz → grünes Häkchen
+//   - Wert außerhalb der Toleranz → rotes Kreuz
 interface ToleranzFeldProps {
   wert: InstanzWert;
   onChange: (wertId: number, data: Record<string, unknown>) => void;
+  kontrolleAbgeschlossen?: boolean;
 }
 
-export default function ToleranzFeld({ wert, onChange }: ToleranzFeldProps) {
+export default function ToleranzFeld({ wert, onChange, kontrolleAbgeschlossen = false }: ToleranzFeldProps) {
   // Der eingegebene Ist-Wert wird in zahlwert gespeichert
   // (toleranzMin/toleranzMax bleiben als Referenz-Grenzen erhalten)
   const min = wert.toleranzMin;
@@ -42,20 +49,38 @@ export default function ToleranzFeld({ wert, onChange }: ToleranzFeldProps) {
     }
   };
 
+  // Status-Icon wenn Kontrolle abgeschlossen
+  let statusIcon: React.ReactNode = null;
+  if (kontrolleAbgeschlossen && !wert.veraltet) {
+    if (numValue == null) {
+      // Fehlender Wert → gelbes Warndreieck
+      statusIcon = <WarningIcon sx={{ color: 'warning.main', fontSize: 20 }} />;
+    } else if (isWithinTolerance === true) {
+      // Innerhalb der Toleranz → grünes Häkchen
+      statusIcon = <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />;
+    } else if (isWithinTolerance === false) {
+      // Außerhalb der Toleranz → rotes Kreuz
+      statusIcon = <CancelIcon sx={{ color: 'error.main', fontSize: 20 }} />;
+    }
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-      <Typography
-        variant="body2"
-        sx={{
-          fontWeight: 500,
-          ...(wert.veraltet && {
-            opacity: 0.5,
-            textDecoration: 'line-through',
-          }),
-        }}
-      >
-        {wert.bezeichnung}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 500,
+            ...(wert.veraltet && {
+              opacity: 0.5,
+              textDecoration: 'line-through',
+            }),
+          }}
+        >
+          {wert.bezeichnung}
+        </Typography>
+        {statusIcon}
+      </Box>
 
       {/* Referenz-Grenzen als read-only Anzeige */}
       <Typography variant="body2" color="text.secondary">
@@ -77,13 +102,13 @@ export default function ToleranzFeld({ wert, onChange }: ToleranzFeldProps) {
         }}
       />
 
-      {/* Statusanzeige unter dem Feld */}
-      {isWithinTolerance === true && (
+      {/* Statusanzeige unter dem Feld (nur wenn Kontrolle nicht abgeschlossen) */}
+      {!kontrolleAbgeschlossen && isWithinTolerance === true && (
         <Typography variant="caption" sx={{ color: 'success.main' }}>
           In Ordnung – innerhalb der Grenzen
         </Typography>
       )}
-      {isWithinTolerance === false && (
+      {!kontrolleAbgeschlossen && isWithinTolerance === false && (
         <Typography variant="caption" color="error">
           Nicht in Ordnung – außerhalb der Grenzen
         </Typography>

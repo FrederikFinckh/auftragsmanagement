@@ -9,15 +9,20 @@ import TextFeld from './TextFeld';
 interface PruefargumentFormularProps {
   werte: InstanzWert[];
   onChange: (wertId: number, data: Record<string, unknown>) => void;
+  kontrolleAbgeschlossen?: boolean;
 }
 
 // Rendert das passende Eingabefeld je nach Typ
-function renderFeld(wert: InstanzWert, onChange: (wertId: number, data: Record<string, unknown>) => void) {
+function renderFeld(
+  wert: InstanzWert,
+  onChange: (wertId: number, data: Record<string, unknown>) => void,
+  kontrolleAbgeschlossen: boolean,
+) {
   switch (wert.typ) {
     case 'KONTROLLHAKEN':
-      return <KontrollhakenFeld wert={wert} onChange={onChange} />;
+      return <KontrollhakenFeld wert={wert} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     case 'TOLERANZ':
-      return <ToleranzFeld wert={wert} onChange={onChange} />;
+      return <ToleranzFeld wert={wert} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     case 'ZAHLWERT':
       return <ZahlwertFeld wert={wert} onChange={onChange} />;
     case 'TEXT':
@@ -31,7 +36,7 @@ function renderFeld(wert: InstanzWert, onChange: (wertId: number, data: Record<s
   }
 }
 
-export default function PruefargumentFormular({ werte, onChange }: PruefargumentFormularProps) {
+export default function PruefargumentFormular({ werte, onChange, kontrolleAbgeschlossen = false }: PruefargumentFormularProps) {
   if (werte.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
@@ -48,7 +53,7 @@ export default function PruefargumentFormular({ werte, onChange }: Pruefargument
       {sortedWerte.map((wert, index) => (
         <Box key={wert.id}>
           {index > 0 && <Divider sx={{ mb: 2 }} />}
-          {renderFeld(wert, onChange)}
+          {renderFeld(wert, onChange, kontrolleAbgeschlossen)}
         </Box>
       ))}
     </Box>
