@@ -103,6 +103,35 @@ public class AuftragService {
         return toDto(savedAuftrag);
     }
 
+    // Auftrag bearbeiten (nur Metadaten, keine Stückzahl-Änderung)
+    @Transactional
+    public AuftragDto updateAuftrag(Long id, AuftragCreateDto dto) {
+        Auftrag auftrag = findOrThrow(id);
+
+        // Auftragsnummer-Änderung prüfen (kein Duplikat)
+        if (!auftrag.getAuftragsnummer().equals(dto.getAuftragsnummer())) {
+            if (auftragRepository.existsByAuftragsnummer(dto.getAuftragsnummer())) {
+                throw new IllegalArgumentException("Auftragsnummer '" + dto.getAuftragsnummer() + "' existiert bereits");
+            }
+        }
+
+        auftrag.setAuftragsnummer(dto.getAuftragsnummer());
+        auftrag.setDatum(dto.getDatum());
+        auftrag.setKunde(dto.getKunde());
+
+        // Materialnummer ändern
+        Materialnummer materialnummer = null;
+        if (dto.getMaterialnummerId() != null) {
+            materialnummer = materialnummerRepository.findById(dto.getMaterialnummerId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Materialnummer mit ID " + dto.getMaterialnummerId() + " nicht gefunden"));
+        }
+        auftrag.setMaterialnummer(materialnummer);
+
+        Auftrag saved = auftragRepository.save(auftrag);
+        return toDto(saved);
+    }
+
     // Instanzen-Übersicht für einen Auftrag (für Übersichtskarten)
     @Transactional(readOnly = true)
     public List<InstanzUebersichtDto> getInstanzenFuerAuftrag(Long auftragId) {

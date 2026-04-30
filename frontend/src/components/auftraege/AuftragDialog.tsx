@@ -15,20 +15,24 @@ import {
   TableRow,
   Box,
 } from '@mui/material';
-import type { AuftragCreate } from '../../types/auftrag';
+import type { Auftrag, AuftragCreate } from '../../types/auftrag';
 import type { Materialnummer } from '../../types/material';
-import { createAuftrag } from '../../api/auftraege';
+import { createAuftrag, updateAuftrag } from '../../api/auftraege';
 import { getMaterialien } from '../../api/materialien';
 
-// 2-Schritt-Dialog zum Anlegen eines neuen Auftrags
+// Dialog zum Anlegen oder Bearbeiten eines Auftrags
 interface AuftragDialogProps {
   open: boolean;
+  auftrag: Auftrag | null; // null = neuer Auftrag, sonst Bearbeitung
   onClose: () => void;
   onCreated: (auftragId: number) => void; // Neuen Auftrag-Tab öffnen
+  onSaved: () => void; // Nach Bearbeitung: Liste neu laden
 }
 
-export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialogProps) {
-  // Schritt-Zustand
+export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSaved }: AuftragDialogProps) {
+  const isEdit = auftrag !== null;
+
+  // Schritt-Zustand (nur beim Anlegen relevant)
   const [step, setStep] = useState<1 | 2>(1);
 
   // Formularfelder
@@ -54,6 +58,21 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
       getMaterialien().then(setMaterialien).catch(() => {});
     }
   }, [open]);
+
+  // Beim Bearbeiten: Formular mit bestehenden Werten füllen
+  useEffect(() => {
+    if (open && auftrag) {
+      setDatum(auftrag.datum || '');
+      setAuftragsnummer(auftrag.auftragsnummer || '');
+      setStueckzahl(String(auftrag.stueckzahl));
+      setKunde(auftrag.kunde || '');
+      // Materialnummer setzen wenn Materialien geladen sind
+      if (auftrag.materialnummerId && materialien.length > 0) {
+        const mat = materialien.find((m) => m.id === auftrag.materialnummerId);
+        setSelectedMaterial(mat ?? null);
+      }
+    }
+  }, [open, auftrag, materialien]);
 
   // Formular zurücksetzen
   const resetForm = () => {
@@ -84,12 +103,15 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
     if (!auftragsnummer.trim()) {
       errors.auftragsnummer = 'Auftragsnummer ist ein Pflichtfeld';
     }
-    if (!stueckzahl.trim()) {
-      errors.stueckzahl = 'Stückzahl ist ein Pflichtfeld';
-    } else {
-      const num = parseInt(stueckzahl, 10);
-      if (isNaN(num) || num < 1) {
-        errors.stueckzahl = 'Stückzahl muss mindestens 1 sein';
+    if (!isEdit) {
+      // Stückzahl nur beim Anlegen pflicht
+      if (!stueckzahl.trim()) {
+        errors.stueckzahl = 'Stückzahl ist ein Pflichtfeld';
+      } else {
+        const num = parseInt(stueckzahl, 10);
+        if (isNaN(num) || num < 1) {
+          errors.stueckzahl = 'Stückzahl muss mindestens 1 sein';
+        }
       }
     }
 
@@ -97,7 +119,7 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
     return Object.keys(errors).length === 0;
   };
 
-  // Weiter zu Schritt 2
+  // Weiter zu Schritt 2 (nur beim Anlegen)
   const handleNext = () => {
     if (validateStep1()) {
       setStep(2);
@@ -111,8 +133,8 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
     setError(null);
   };
 
-  // Auftrag anlegen
-  const handleSave = async () => {
+  // Auftrag anlegen (Schritt 2)
+  const handleCreate = async () => {
     setSaving(true);
     setError(null);
 
@@ -135,11 +157,42 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
     }
   };
 
+  // Auftrag bearbeiten (direkt speichern)
+  const handleEditSave = async () => {
+    if (!auftrag) return;
+
+    if (!validateStep1()) return;
+
+    setSaving(true);
+    setError(null);
+
+    const data: AuftragCreate = {
+      datum: datum.trim(),
+      auftragsnummer: auftragsnummer.trim(),
+      stueckzahl: auftrag.stueckzahl, // Stückzahl nicht änderbar
+      kunde: kunde.trim() || null,
+      materialnummerId: selectedMaterial?.id ?? null,
+    };
+
+    try {
+      await updateAuftrag(auftrag.id, data);
+      onSaved();
+      handleClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Fehler beim Speichern des Auftrags');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Titel je nach Modus
+  const dialogTitle = isEdit
+    ? 'Auftrag bearbeiten'
+    : (step === 1 ? 'Neuen Auftrag anlegen' : 'Eingaben überprüfen');
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        {step === 1 ? 'Neuen Auftrag anlegen' : 'Eingaben überprüfen'}
-      </DialogTitle>
+      <DialogTitle>{dialogTitle}</DialogTitle>
 
       <DialogContent>
         {error && (
@@ -148,8 +201,8 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
           </Alert>
         )}
 
-        {step === 1 ? (
-          /* Schritt 1: Eingabefelder */
+        {isEdit || step === 1 ? (
+          /* Eingabefelder */
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
             <TextField
               label="Datum"
@@ -172,18 +225,20 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
               error={!!fieldErrors.auftragsnummer}
               helperText={fieldErrors.auftragsnummer}
             />
-            <TextField
-              label="Stückzahl"
-              type="number"
-              value={stueckzahl}
-              onChange={(e) => setStueckzahl(e.target.value)}
-              required
-              size="small"
-              fullWidth
-              slotProps={{ htmlInput: { min: 1 } }}
-              error={!!fieldErrors.stueckzahl}
-              helperText={fieldErrors.stueckzahl}
-            />
+            {!isEdit && (
+              <TextField
+                label="Stückzahl"
+                type="number"
+                value={stueckzahl}
+                onChange={(e) => setStueckzahl(e.target.value)}
+                required
+                size="small"
+                fullWidth
+                slotProps={{ htmlInput: { min: 1 } }}
+                error={!!fieldErrors.stueckzahl}
+                helperText={fieldErrors.stueckzahl}
+              />
+            )}
             <TextField
               label="Kunde"
               value={kunde}
@@ -210,7 +265,7 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
             />
           </Box>
         ) : (
-          /* Schritt 2: Bestätigung */
+          /* Schritt 2: Bestätigung (nur beim Anlegen) */
           <Paper variant="outlined" sx={{ mt: 1 }}>
             <Table size="small">
               <TableBody>
@@ -241,7 +296,18 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
       </DialogContent>
 
       <DialogActions>
-        {step === 1 ? (
+        {isEdit ? (
+          /* Bearbeitungsmodus: direkt speichern */
+          <>
+            <Button onClick={handleClose} color="inherit">
+              Abbrechen
+            </Button>
+            <Button onClick={handleEditSave} variant="contained" disabled={saving}>
+              {saving ? 'Wird gespeichert...' : 'Speichern'}
+            </Button>
+          </>
+        ) : step === 1 ? (
+          /* Anlegen Schritt 1 */
           <>
             <Button onClick={handleClose} color="inherit">
               Abbrechen
@@ -251,11 +317,12 @@ export default function AuftragDialog({ open, onClose, onCreated }: AuftragDialo
             </Button>
           </>
         ) : (
+          /* Anlegen Schritt 2 */
           <>
             <Button onClick={handleBack} color="inherit">
               Zurück
             </Button>
-            <Button onClick={handleSave} variant="contained" disabled={saving}>
+            <Button onClick={handleCreate} variant="contained" disabled={saving}>
               {saving ? 'Wird gespeichert...' : 'OK'}
             </Button>
             <Button onClick={handleClose} color="inherit">

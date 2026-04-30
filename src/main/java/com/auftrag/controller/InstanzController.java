@@ -36,4 +36,11 @@ public class InstanzController {
                                                               @RequestBody AbgeschlossenDto dto) {
         return ResponseEntity.ok(instanzService.setKontrolleAbgeschlossen(id, dto.isAbgeschlossen()));
     }
+
+    // Einzelne Instanz löschen (Cascade löscht Werte)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInstanz(@PathVariable Long id) {
+        instanzService.deleteInstanz(id);
+        return ResponseEntity.noContent().build();
+    }
 }

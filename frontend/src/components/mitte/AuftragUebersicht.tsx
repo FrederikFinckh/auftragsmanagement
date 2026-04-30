@@ -4,17 +4,22 @@ import { useTabContext } from '../../context/TabContext';
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
 import { getAuftraege } from '../../api/auftraege';
 import InstanzKarte from './InstanzKarte';
+import InstanzLoeschenDialog from '../instanz/InstanzLoeschenDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
 import type { InstanzUebersicht } from '../../types/instanz';
 
 // Übersichts-Tab: Karten-Grid aller Instanzen des aktiven Auftrags
 export default function AuftragUebersicht() {
-  const { aktiverAuftragTabId, openInstanzTab } = useTabContext();
+  const { aktiverAuftragTabId, openInstanzTab, closeInstanzTab } = useTabContext();
 
   const [instanzen, setInstanzen] = useState<InstanzUebersicht[]>([]);
   const [materialnummerNummer, setMaterialnummerNummer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Lösch-Dialog-Zustand
+  const [deleteTarget, setDeleteTarget] = useState<InstanzUebersicht | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Instanzen und Materialnummer laden
   const loadData = useCallback(async () => {
@@ -54,6 +59,18 @@ export default function AuftragUebersicht() {
     }
   };
 
+  // Löschen starten
+  const handleDelete = (instanz: InstanzUebersicht) => {
+    setDeleteTarget(instanz);
+    setDeleteDialogOpen(true);
+  };
+
+  // Nach Löschung: Tab schließen und Liste neu laden
+  const handleDeleted = (auftragId: number, instanzId: number) => {
+    closeInstanzTab(auftragId, instanzId);
+    loadData();
+  };
+
   if (aktiverAuftragTabId === null) return null;
 
   if (loading) {
@@ -85,10 +102,20 @@ export default function AuftragUebersicht() {
               instanz={instanz}
               materialnummerNummer={materialnummerNummer}
               onClick={() => handleKarteClick(instanz)}
+              onDelete={handleDelete}
             />
           </Grid>
         ))}
       </Grid>
+
+      {/* Lösch-Dialog */}
+      <InstanzLoeschenDialog
+        instanz={deleteTarget}
+        auftragId={aktiverAuftragTabId}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onDeleted={handleDeleted}
+      />
     </Box>
   );
 }

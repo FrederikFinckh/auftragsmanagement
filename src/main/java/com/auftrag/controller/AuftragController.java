@@ -41,6 +41,13 @@ public class AuftragController {
         return ResponseEntity.ok(auftragService.getInstanzenFuerAuftrag(id));
     }
 
+    // Auftrag bearbeiten (Metadaten, keine Stückzahl-Änderung)
+    @PutMapping("/{id}")
+    public ResponseEntity<AuftragDto> updateAuftrag(@PathVariable Long id,
+                                                      @Valid @RequestBody AuftragCreateDto dto) {
+        return ResponseEntity.ok(auftragService.updateAuftrag(id, dto));
+    }
+
     // Auftrag löschen (Cascade löscht Instanzen + Werte)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuftrag(@PathVariable Long id) {

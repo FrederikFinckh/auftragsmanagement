@@ -1,6 +1,6 @@
 // API-Funktionen für die Instanzen-Endpunkte
 
-import { apiGet, apiPatch } from './client';
+import { apiGet, apiPatch, apiDelete } from './client';
 import type { InstanzUebersicht, InstanzDetail, InstanzWert } from '../types/instanz';
 
 // Instanzen-Übersicht für einen Auftrag abrufen
@@ -21,4 +21,9 @@ export function updateInstanzWert(instanzId: number, wertId: number, data: Recor
 // Kontrolle abgeschlossen Flag setzen
 export function setAbgeschlossen(instanzId: number, abgeschlossen: boolean): Promise<InstanzDetail> {
   return apiPatch<InstanzDetail>(`/instanzen/${instanzId}/abgeschlossen`, { abgeschlossen });
+}
+
+// Einzelne Instanz löschen
+export async function deleteInstanz(instanzId: number): Promise<void> {
+  await apiDelete(`/instanzen/${instanzId}`);
 }

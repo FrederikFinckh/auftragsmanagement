@@ -91,6 +91,13 @@ public class InstanzService {
         return toDetailDto(instanz);
     }
 
+    // Einzelne Instanz löschen (Cascade löscht Werte)
+    @Transactional
+    public void deleteInstanz(Long instanzId) {
+        Instanz instanz = findInstanzOrThrow(instanzId);
+        instanzRepository.delete(instanz);
+    }
+
     // --- Hilfsmethoden ---
 
     // Instanz anhand ID suchen oder 404 werfen

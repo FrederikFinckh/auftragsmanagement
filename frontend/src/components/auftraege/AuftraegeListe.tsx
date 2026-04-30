@@ -12,13 +12,14 @@ import AddIcon from '@mui/icons-material/Add';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AuftragItem from './AuftragItem';
 import AuftragDialog from './AuftragDialog';
+import AuftragLoeschenDialog from './AuftragLoeschenDialog';
 import { getAuftraege } from '../../api/auftraege';
 import { useTabContext } from '../../context/TabContext';
 import type { Auftrag } from '../../types/auftrag';
 
 // Listenbereich der linken Seitenleiste für Aufträge
 export default function AuftraegeListe() {
-  const { openAuftragTab } = useTabContext();
+  const { openAuftragTab, closeAuftragTab } = useTabContext();
 
   const [auftraege, setAuftraege] = useState<Auftrag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,11 @@ export default function AuftraegeListe() {
 
   // Dialog-Zustand
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editAuftrag, setEditAuftrag] = useState<Auftrag | null>(null);
+
+  // Lösch-Zustand
+  const [deleteTarget, setDeleteTarget] = useState<Auftrag | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Aufträge laden
   const loadAuftraege = useCallback(async () => {
@@ -62,6 +68,43 @@ export default function AuftraegeListe() {
 
   // Auftrag erstellt
   const handleCreated = (_auftragId: number) => {
+    loadAuftraege();
+  };
+
+  // Bearbeiten öffnen
+  const handleEdit = (auftrag: Auftrag) => {
+    setEditAuftrag(auftrag);
+    setDialogOpen(true);
+  };
+
+  // Neuer Auftrag öffnen
+  const handleCreate = () => {
+    setEditAuftrag(null);
+    setDialogOpen(true);
+  };
+
+  // Dialog geschlossen
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditAuftrag(null);
+  };
+
+  // Auftrag gespeichert (neu oder bearbeitet)
+  const handleSaved = () => {
+    loadAuftraege();
+  };
+
+  // Löschen starten
+  const handleDelete = (auftrag: Auftrag) => {
+    setDeleteTarget(auftrag);
+    setDeleteDialogOpen(true);
+  };
+
+  // Nach Löschung: Tab schließen und Liste neu laden
+  const handleDeleted = () => {
+    if (deleteTarget) {
+      closeAuftragTab(deleteTarget.id);
+    }
     loadAuftraege();
   };
 
@@ -110,6 +153,8 @@ export default function AuftraegeListe() {
                 key={auftrag.id}
                 auftrag={auftrag}
                 onClick={handleClick}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
               />
             ))}
           </List>
@@ -122,17 +167,27 @@ export default function AuftraegeListe() {
           variant="contained"
           fullWidth
           startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
+          onClick={handleCreate}
         >
           Neuer Auftrag
         </Button>
       </Box>
 
-      {/* Auftrag-Dialog */}
+      {/* Anlegen/Bearbeiten-Dialog */}
       <AuftragDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        auftrag={editAuftrag}
+        onClose={handleDialogClose}
         onCreated={handleCreated}
+        onSaved={handleSaved}
+      />
+
+      {/* Lösch-Dialog */}
+      <AuftragLoeschenDialog
+        auftrag={deleteTarget}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onDeleted={handleDeleted}
       />
     </>
   );

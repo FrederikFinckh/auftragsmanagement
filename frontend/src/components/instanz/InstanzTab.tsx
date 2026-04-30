@@ -7,9 +7,12 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  Button,
 } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
-import { getInstanzDetail, updateInstanzWert, setAbgeschlossen } from '../../api/instanzen';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getInstanzDetail, updateInstanzWert, setAbgeschlossen, deleteInstanz } from '../../api/instanzen';
+import { useTabContext } from '../../context/TabContext';
 import InstanzInfoTabelle from './InstanzInfoTabelle';
 import PruefargumentFormular from './PruefargumentFormular';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -21,10 +24,12 @@ interface InstanzTabProps {
 }
 
 export default function InstanzTab({ instanzId }: InstanzTabProps) {
+  const { closeInstanzTab } = useTabContext();
   const [instanz, setInstanz] = useState<InstanzDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Debounce-Timer und ausstehende Änderungen
   const pendingChanges = useRef<Map<number, Record<string, unknown>>>(new Map());
@@ -143,6 +148,20 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
     }
   }, [instanzId, instanz]);
 
+  // Instanz löschen
+  const handleDelete = useCallback(async () => {
+    if (!instanz) return;
+    setDeleting(true);
+    try {
+      await deleteInstanz(instanz.id);
+      closeInstanzTab(instanz.auftragId, instanz.id);
+    } catch (err) {
+      console.error('Fehler beim Löschen der Instanz:', err);
+    } finally {
+      setDeleting(false);
+    }
+  }, [instanz, closeInstanzTab]);
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -211,11 +230,23 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
             }
             label="Kontrolle abgeschlossen"
           />
-          {saving && (
-            <Typography variant="caption" color="text.secondary">
-              Speichern…
-            </Typography>
-          )}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {saving && (
+              <Typography variant="caption" color="text.secondary">
+                Speichern…
+              </Typography>
+            )}
+            <Button
+              size="small"
+              color="error"
+              variant="outlined"
+              startIcon={<DeleteIcon />}
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Wird gelöscht...' : 'Löschen'}
+            </Button>
+          </Box>
         </Box>
       </Paper>
     </Box>

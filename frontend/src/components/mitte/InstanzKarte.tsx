@@ -1,7 +1,8 @@
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, IconButton } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import WarningIcon from '@mui/icons-material/Warning';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { PRUEFARGUMENT_TYP_LABELS } from '../../types/material';
 import type { InstanzUebersicht } from '../../types/instanz';
 import type { PruefargumentTyp } from '../../types/material';
@@ -11,9 +12,10 @@ interface InstanzKarteProps {
   instanz: InstanzUebersicht;
   materialnummerNummer: string | null;
   onClick: () => void;
+  onDelete: (instanz: InstanzUebersicht) => void;
 }
 
-export default function InstanzKarte({ instanz, materialnummerNummer, onClick }: InstanzKarteProps) {
+export default function InstanzKarte({ instanz, materialnummerNummer, onClick, onDelete }: InstanzKarteProps) {
   return (
     <Paper
       variant="outlined"
@@ -41,6 +43,17 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick }:
           Nr {instanz.nummer}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); onDelete(instanz); }}
+            aria-label="Instanz löschen"
+            sx={{
+              color: 'rgba(255,255,255,0.7)',
+              '&:hover': { color: 'error.main', bgcolor: 'rgba(255,255,255,0.1)' },
+            }}
+          >
+            <DeleteIcon sx={{ fontSize: 16 }} />
+          </IconButton>
           {instanz.materialVeraendert && (
             <WarningIcon sx={{ color: 'warning.main', fontSize: 18 }} />
           )}
