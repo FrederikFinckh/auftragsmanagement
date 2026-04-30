@@ -13,14 +13,13 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import AuftragItem from './AuftragItem';
 import AuftragDialog from './AuftragDialog';
 import { getAuftraege } from '../../api/auftraege';
+import { useTabContext } from '../../context/TabContext';
 import type { Auftrag } from '../../types/auftrag';
 
 // Listenbereich der linken Seitenleiste für Aufträge
-interface AuftraegeListeProps {
-  onAuftragClick?: (auftrag: Auftrag) => void;
-}
+export default function AuftraegeListe() {
+  const { openAuftragTab } = useTabContext();
 
-export default function AuftraegeListe({ onAuftragClick }: AuftraegeListeProps) {
   const [auftraege, setAuftraege] = useState<Auftrag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,11 +55,9 @@ export default function AuftraegeListe({ onAuftragClick }: AuftraegeListeProps) 
     );
   });
 
-  // Auftrag angeklickt
+  // Auftrag angeklickt → Tab öffnen
   const handleClick = (auftrag: Auftrag) => {
-    if (onAuftragClick) {
-      onAuftragClick(auftrag);
-    }
+    openAuftragTab(auftrag);
   };
 
   // Auftrag erstellt

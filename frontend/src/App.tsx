@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import AppHeader from './components/layout/AppHeader';
 import AppFooter from './components/layout/AppFooter';
 import LeftSidebar from './components/layout/LeftSidebar';
 import RightSidebar from './components/layout/RightSidebar';
 import ResizeHandle from './components/layout/ResizeHandle';
+import MitteBereich from './components/mitte/MitteBereich';
+import { TabProvider } from './context/TabContext';
 
 // Minimale und maximale Seitenleistenbreite
 const MIN_SIDEBAR_WIDTH = 200;
@@ -61,65 +63,46 @@ function App() {
   }, [rightWidth]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      {/* Kopfleiste */}
-      <AppHeader />
+    <TabProvider>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+        {/* Kopfleiste */}
+        <AppHeader />
 
-      {/* Hauptzeile: Seitenleisten + Mittelbereich */}
-      <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
-        {/* Linke Seitenleiste */}
-        {leftOpen && (
-          <>
-            <Box sx={{ width: leftWidth, flexShrink: 0, overflow: 'hidden' }}>
-              <LeftSidebar />
-            </Box>
-            <ResizeHandle side="left" onMouseDown={handleLeftResize} />
-          </>
-        )}
+        {/* Hauptzeile: Seitenleisten + Mittelbereich */}
+        <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+          {/* Linke Seitenleiste */}
+          {leftOpen && (
+            <>
+              <Box sx={{ width: leftWidth, flexShrink: 0, overflow: 'hidden' }}>
+                <LeftSidebar />
+              </Box>
+              <ResizeHandle side="left" onMouseDown={handleLeftResize} />
+            </>
+          )}
 
-        {/* Mittelbereich – Tab-Arbeitsbereich */}
-        <Box
-          sx={{
-            flexGrow: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Leerzustand: Wenn keine Tabs geöffnet sind */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="h6" color="text.secondary">
-              Auftrag auswählen, um ihn hier zu öffnen
-            </Typography>
-          </Box>
+          {/* Mittelbereich – Tab-Arbeitsbereich */}
+          <MitteBereich />
+
+          {/* Rechte Seitenleiste */}
+          {rightOpen && (
+            <>
+              <ResizeHandle side="right" onMouseDown={handleRightResize} />
+              <Box sx={{ width: rightWidth, flexShrink: 0, overflow: 'hidden' }}>
+                <RightSidebar />
+              </Box>
+            </>
+          )}
         </Box>
 
-        {/* Rechte Seitenleiste */}
-        {rightOpen && (
-          <>
-            <ResizeHandle side="right" onMouseDown={handleRightResize} />
-            <Box sx={{ width: rightWidth, flexShrink: 0, overflow: 'hidden' }}>
-              <RightSidebar />
-            </Box>
-          </>
-        )}
+        {/* Fußleiste */}
+        <AppFooter
+          leftOpen={leftOpen}
+          rightOpen={rightOpen}
+          onToggleLeft={() => setLeftOpen((prev) => !prev)}
+          onToggleRight={() => setRightOpen((prev) => !prev)}
+        />
       </Box>
-
-      {/* Fußleiste */}
-      <AppFooter
-        leftOpen={leftOpen}
-        rightOpen={rightOpen}
-        onToggleLeft={() => setLeftOpen((prev) => !prev)}
-        onToggleRight={() => setRightOpen((prev) => !prev)}
-      />
-    </Box>
+    </TabProvider>
   );
 }
 
