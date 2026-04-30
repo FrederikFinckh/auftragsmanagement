@@ -199,7 +199,7 @@ KONTROLLHAKEN | TOLERANZ | ZAHLWERT | TEXT
 | 2 | `plans/phase2-api-materialien.md` | Materialien CRUD + Sync-Logik + Force-Löschung | ✅ |
 | 3 | `plans/phase3-api-auftraege.md` | Aufträge + Instanz-Generierung | ✅ |
 | 4 | `plans/phase4-api-instanzwerte.md` | Instanz-Werte Auto-Save + Abgeschlossen-Flag | ✅ |
-| 5 | `plans/phase5-frontend-grundgeruest.md` | Layout, MUI Theme, Sidebar-Resize | 🔲 |
+| 5 | `plans/phase5-frontend-grundgeruest.md` | Layout, MUI Theme, Sidebar-Resize | ✅ |
 | 6 | `plans/phase6-frontend-materialien.md` | Rechte Sidebar: Materialliste + Dialog | 🔲 |
 | 7 | `plans/phase7-frontend-auftraege.md` | Linke Sidebar: Auftragsliste + 2-Schritt-Dialog | 🔲 |
 | 8 | `plans/phase8-frontend-mittelbereich.md` | Doppelte Tab-Zeile + Übersichtskarten | 🔲 |

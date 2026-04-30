@@ -1,6 +1,6 @@
 # Phase 5 – Frontend-Grundgerüst
 
-> **Status:** 🔲 Ausstehend
+> **Status:** ✅ Abgeschlossen
 > **Abhängigkeiten:** Phase 1–4 abgeschlossen (Backend läuft)
 
 ---
