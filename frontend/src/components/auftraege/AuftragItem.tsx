@@ -14,9 +14,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import type { Auftrag } from '../../types/auftrag';
 import type { InstanzUebersicht } from '../../types/instanz';
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
+import { useTabContext } from '../../context/TabContext';
 
 interface AuftragItemProps {
   auftrag: Auftrag;
@@ -29,9 +31,11 @@ export default function AuftragItem({ auftrag, onEdit, onDelete, onInstanzClick 
   const [expanded, setExpanded] = useState(true);
   const [instanzen, setInstanzen] = useState<InstanzUebersicht[]>([]);
   const [loading, setLoading] = useState(true);
+  const { instanzChangedVersion } = useTabContext();
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     getInstanzenFuerAuftrag(auftrag.id).then((data) => {
       if (!cancelled) {
         setInstanzen(data);
@@ -41,7 +45,7 @@ export default function AuftragItem({ auftrag, onEdit, onDelete, onInstanzClick 
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [auftrag.id]);
+  }, [auftrag.id, instanzChangedVersion]);
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

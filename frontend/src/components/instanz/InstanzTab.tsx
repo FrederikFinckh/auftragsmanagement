@@ -24,7 +24,7 @@ interface InstanzTabProps {
 }
 
 export default function InstanzTab({ instanzId }: InstanzTabProps) {
-  const { closeTopTab } = useTabContext();
+  const { closeTopTab, notifyInstanzChanged } = useTabContext();
   const [instanz, setInstanz] = useState<InstanzDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +138,7 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
 
     try {
       await setAbgeschlossen(instanzId, checked);
+      notifyInstanzChanged();
     } catch (err) {
       // Bei Fehler: zurücksetzen
       setInstanz((prev) => {
@@ -146,7 +147,7 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
       });
       console.error('Fehler beim Setzen des Abgeschlossen-Flags:', err);
     }
-  }, [instanzId, instanz]);
+  }, [instanzId, instanz, notifyInstanzChanged]);
 
   // Instanz löschen
   const handleDelete = useCallback(async () => {

@@ -40,6 +40,8 @@ interface TabContextType {
   aktiveMaterialTab: MaterialTabData | null;
   materialSavedVersion: number;
   notifyMaterialSaved: () => void;
+  instanzChangedVersion: number;
+  notifyInstanzChanged: () => void;
 }
 
 const TabContext = createContext<TabContextType | null>(null);
@@ -66,6 +68,11 @@ export function TabProvider({ children }: { children: ReactNode }) {
   const [materialSavedVersion, setMaterialSavedVersion] = useState(0);
   const notifyMaterialSaved = useCallback(() => {
     setMaterialSavedVersion((v) => v + 1);
+  }, []);
+
+  const [instanzChangedVersion, setInstanzChangedVersion] = useState(0);
+  const notifyInstanzChanged = useCallback(() => {
+    setInstanzChangedVersion((v) => v + 1);
   }, []);
 
   const openAuftragTab = useCallback((auftrag: Auftrag) => {
@@ -190,6 +197,8 @@ export function TabProvider({ children }: { children: ReactNode }) {
         aktiveMaterialTab,
         materialSavedVersion,
         notifyMaterialSaved,
+        instanzChangedVersion,
+        notifyInstanzChanged,
       }}
     >
       {children}
