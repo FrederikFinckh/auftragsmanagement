@@ -5,17 +5,14 @@ import {
   Select,
   MenuItem,
   FormControl,
+  FormControlLabel,
   Checkbox,
   IconButton,
   Typography,
   Box,
   Divider,
   Alert,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
+  Paper,
   Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -151,10 +148,17 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
     switch (arg.typ) {
       case 'KONTROLLHAKEN':
         return (
-          <Checkbox
-            checked={arg.kontrollhakenWert ?? false}
-            onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
-            size="small"
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={arg.kontrollhakenWert ?? false}
+                onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
+                size="small"
+              />
+            }
+            label={arg.bezeichnung || 'Kontrollhäkchen'}
+            sx={{ mr: 0 }}
+            slotProps={{ typography: { variant: 'body2' } }}
           />
         );
       case 'TOLERANZ':
@@ -214,7 +218,7 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: 900 }}>
+    <Box sx={{ p: 3, maxWidth: "100%" }}>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -267,65 +271,48 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
           Noch keine Prüfargumente hinzugefügt
         </Typography>
       ) : (
-        <Table size="small" padding="none">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: 40, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>#</TableCell>
-              <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem', minWidth: 200 }}>Bezeichnung</TableCell>
-              <TableCell sx={{ width: 130, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Typ</TableCell>
-              <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Wert</TableCell>
-              <TableCell sx={{ width: 36, px: 1, py: 0.5 }} />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {pruefargumente.map((arg, index) => (
-              <TableRow key={index} hover>
-                <TableCell sx={{ px: 1, py: 0.5, color: 'text.secondary', fontSize: '0.8rem' }}>
-                  {index + 1}
-                </TableCell>
-                <TableCell sx={{ px: 1, py: 0.5 }}>
-                  <TextField
-                    value={arg.bezeichnung}
-                    onChange={(e) => handlePruefargumentChange(index, 'bezeichnung', e.target.value)}
-                    placeholder="Bezeichnung"
-                    size="small"
-                    fullWidth
-                    variant="standard"
-                  />
-                </TableCell>
-                <TableCell sx={{ px: 1, py: 0.5 }}>
-                  <FormControl size="small" fullWidth variant="standard">
-                    <Select
-                      value={arg.typ}
-                      onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}
-                      disableUnderline
-                    >
-                      {typOptions.map((typ) => (
-                        <MenuItem key={typ} value={typ} sx={{ fontSize: '0.8rem' }}>
-                          {PRUEFARGUMENT_TYP_LABELS[typ]}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell sx={{ px: 1, py: 0.5 }}>
-                  {renderWertCell(arg, index)}
-                </TableCell>
-                <TableCell sx={{ px: 0.5, py: 0.5 }}>
-                  <Tooltip title="Entfernen">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemovePruefargument(index)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
+          {pruefargumente.map((arg, index) => (
+            <Paper key={index} variant="outlined" sx={{ px: 1, py: 0.25, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ minWidth: 20 }}>
+                {index + 1}
+              </Typography>
+              <FormControl size="small" variant="standard" sx={{ minWidth: 90 }}>
+                <Select
+                  value={arg.typ}
+                  onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}
+                  disableUnderline
+                >
+                  {typOptions.map((typ) => (
+                    <MenuItem key={typ} value={typ} sx={{ fontSize: '0.8rem' }}>
+                      {PRUEFARGUMENT_TYP_LABELS[typ]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                value={arg.bezeichnung}
+                onChange={(e) => handlePruefargumentChange(index, 'bezeichnung', e.target.value)}
+                placeholder="Bezeichnung"
+                size="small"
+                fullWidth
+                variant="standard"
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {renderWertCell(arg, index)}
+              </Box>
+              <Tooltip title="Entfernen">
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleRemovePruefargument(index)}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Paper>
+          ))}
+        </Box>
       )}
 
       <Divider sx={{ my: 2 }} />
