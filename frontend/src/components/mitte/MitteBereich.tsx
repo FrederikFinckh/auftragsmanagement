@@ -1,13 +1,12 @@
 import { Box, Typography } from '@mui/material';
 import { useTabContext } from '../../context/TabContext';
 import AuftragTabLeiste from './AuftragTabLeiste';
-import InstanzTabLeiste from './InstanzTabLeiste';
 import AuftragUebersicht from './AuftragUebersicht';
 import InstanzTab from '../instanz/InstanzTab';
 import MaterialTab from '../materialien/MaterialTab';
 
 export default function MitteBereich() {
-  const { topTabs, aktiverAuftragTabId, aktuelleAktiverInstanzTabId, isMaterialTabActive, aktiveMaterialTab } = useTabContext();
+  const { topTabs, aktiverInstanzTabId, isMaterialTabActive, aktiveMaterialTab, aktiverTopTabId } = useTabContext();
 
   if (topTabs.length === 0) {
     return (
@@ -26,7 +25,11 @@ export default function MitteBereich() {
     );
   }
 
-  const showInstanzContent = aktiverAuftragTabId !== null && aktuelleAktiverInstanzTabId !== null;
+  const activeTab = topTabs.find((t) =>
+    t.type === 'auftrag' ? `auftrag-${t.auftragId}` === aktiverTopTabId :
+    t.type === 'instanz' ? t.tabId === aktiverTopTabId :
+    t.tabId === aktiverTopTabId
+  );
 
   return (
     <Box
@@ -39,8 +42,6 @@ export default function MitteBereich() {
     >
       <AuftragTabLeiste />
 
-      {!isMaterialTabActive && <InstanzTabLeiste />}
-
       <Box
         sx={{
           flexGrow: 1,
@@ -52,9 +53,9 @@ export default function MitteBereich() {
             key={aktiveMaterialTab.tabId}
             tab={aktiveMaterialTab}
           />
-        ) : showInstanzContent && aktuelleAktiverInstanzTabId !== null ? (
-          <InstanzTab instanzId={aktuelleAktiverInstanzTabId} />
-        ) : aktiverAuftragTabId !== null ? (
+        ) : aktiverInstanzTabId !== null ? (
+          <InstanzTab instanzId={aktiverInstanzTabId} />
+        ) : activeTab?.type === 'auftrag' ? (
           <AuftragUebersicht />
         ) : null}
       </Box>

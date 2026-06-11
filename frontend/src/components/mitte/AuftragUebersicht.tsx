@@ -12,8 +12,11 @@ import type { InstanzUebersicht } from '../../types/instanz';
 
 // Übersichts-Tab: Karten-Grid aller Instanzen des aktiven Auftrags
 export default function AuftragUebersicht() {
-  const { aktiverAuftragTabId, openInstanzTab, closeInstanzTab } = useTabContext();
+  const { topTabs, aktiverTopTabId, openInstanzTab, closeTopTab } = useTabContext();
 
+  const aktiverAuftragTabId = topTabs.find(t =>
+    t.type === 'auftrag' && `auftrag-${t.auftragId}` === aktiverTopTabId
+  )?.auftragId ?? null;
   const [instanzen, setInstanzen] = useState<InstanzUebersicht[]>([]);
   const [materialnummerNummer, setMaterialnummerNummer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,7 +63,11 @@ export default function AuftragUebersicht() {
   // Klick auf Instanzkarte öffnet Instanz-Tab
   const handleKarteClick = (instanz: InstanzUebersicht) => {
     if (aktiverAuftragTabId !== null) {
-      openInstanzTab(aktiverAuftragTabId, instanz.id, instanz.nummer);
+      const auftraege = topTabs.filter(t => t.type === 'auftrag');
+      const auftrag = auftraege.find(t => t.type === 'auftrag' && t.auftragId === aktiverAuftragTabId);
+      if (auftrag) {
+        openInstanzTab(auftrag, instanz.id, instanz.nummer);
+      }
     }
   };
 
@@ -71,8 +78,8 @@ export default function AuftragUebersicht() {
   };
 
   // Nach Löschung: Tab schließen und Liste neu laden
-  const handleDeleted = (auftragId: number, instanzId: number) => {
-    closeInstanzTab(auftragId, instanzId);
+  const handleDeleted = (_auftragId: number, instanzId: number) => {
+    closeTopTab(`instanz-${instanzId}`);
     loadData();
   };
 

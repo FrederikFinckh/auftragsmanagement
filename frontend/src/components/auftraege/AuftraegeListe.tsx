@@ -19,7 +19,7 @@ import type { Auftrag } from '../../types/auftrag';
 
 // Listenbereich der linken Seitenleiste für Aufträge
 export default function AuftraegeListe() {
-  const { openAuftragTab, closeTopTab } = useTabContext();
+  const { openInstanzTab, closeTopTab } = useTabContext();
 
   const [auftraege, setAuftraege] = useState<Auftrag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,9 +61,9 @@ export default function AuftraegeListe() {
     );
   });
 
-  // Auftrag angeklickt → Tab öffnen
-  const handleClick = (auftrag: Auftrag) => {
-    openAuftragTab(auftrag);
+  // Instanz angeklickt → Instanz-Tab öffnen
+  const handleInstanzClick = (auftrag: Auftrag, instanzId: number, instanzNr: number) => {
+    openInstanzTab(auftrag, instanzId, instanzNr);
   };
 
   // Auftrag erstellt
@@ -152,9 +152,9 @@ export default function AuftraegeListe() {
               <AuftragItem
                 key={auftrag.id}
                 auftrag={auftrag}
-                onClick={handleClick}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onInstanzClick={handleInstanzClick}
               />
             ))}
           </List>

@@ -24,7 +24,7 @@ interface InstanzTabProps {
 }
 
 export default function InstanzTab({ instanzId }: InstanzTabProps) {
-  const { closeInstanzTab } = useTabContext();
+  const { closeTopTab } = useTabContext();
   const [instanz, setInstanz] = useState<InstanzDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,13 +154,13 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
     setDeleting(true);
     try {
       await deleteInstanz(instanz.id);
-      closeInstanzTab(instanz.auftragId, instanz.id);
+      closeTopTab(`instanz-${instanz.id}`);
     } catch (err) {
       console.error('Fehler beim Löschen der Instanz:', err);
     } finally {
       setDeleting(false);
     }
-  }, [instanz, closeInstanzTab]);
+  }, [instanz, closeTopTab]);
 
   if (loading) {
     return <LoadingSpinner />;
