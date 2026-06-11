@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Grid, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useTabContext } from '../../context/TabContext';
+import { useTabContext, type AuftragTab } from '../../context/TabContext';
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
 import { getAuftraege } from '../../api/auftraege';
 import InstanzKarte from './InstanzKarte';
@@ -9,16 +9,19 @@ import InstanzLoeschenDialog from '../instanz/InstanzLoeschenDialog';
 import InstanzHinzufuegenDialog from './InstanzHinzufuegenDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
 import type { InstanzUebersicht } from '../../types/instanz';
+import type { Auftrag } from '../../types/auftrag';
 
 // Übersichts-Tab: Karten-Grid aller Instanzen des aktiven Auftrags
 export default function AuftragUebersicht() {
   const { topTabs, aktiverTopTabId, openInstanzTab, closeTopTab } = useTabContext();
 
-  const aktiverAuftragTabId = topTabs.find(t =>
+  const aktiverAuftragTab = topTabs.find(t =>
     t.type === 'auftrag' && `auftrag-${t.auftragId}` === aktiverTopTabId
-  )?.auftragId ?? null;
+  ) as AuftragTab | undefined;
+  const aktiverAuftragTabId = aktiverAuftragTab?.auftragId ?? null;
   const [instanzen, setInstanzen] = useState<InstanzUebersicht[]>([]);
   const [materialnummerNummer, setMaterialnummerNummer] = useState<string | null>(null);
+  const [aktuellerAuftrag, setAktuellerAuftrag] = useState<Auftrag | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +48,10 @@ export default function AuftragUebersicht() {
       const instanzData = await getInstanzenFuerAuftrag(aktiverAuftragTabId);
       setInstanzen(instanzData);
 
-      // Materialnummer aus der Auftragsliste ermitteln
       const auftragData = await getAuftraege();
       const found = auftragData.find((a) => a.id === aktiverAuftragTabId);
       setMaterialnummerNummer(found?.materialnummerNummer ?? null);
+      setAktuellerAuftrag(found ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler beim Laden der Instanzen');
     } finally {
@@ -62,12 +65,8 @@ export default function AuftragUebersicht() {
 
   // Klick auf Instanzkarte öffnet Instanz-Tab
   const handleKarteClick = (instanz: InstanzUebersicht) => {
-    if (aktiverAuftragTabId !== null) {
-      const auftraege = topTabs.filter(t => t.type === 'auftrag');
-      const auftrag = auftraege.find(t => t.type === 'auftrag' && t.auftragId === aktiverAuftragTabId);
-      if (auftrag) {
-        openInstanzTab(auftrag, instanz.id, instanz.nummer);
-      }
+    if (aktuellerAuftrag) {
+      openInstanzTab(aktuellerAuftrag, instanz.id, instanz.nummer);
     }
   };
 
