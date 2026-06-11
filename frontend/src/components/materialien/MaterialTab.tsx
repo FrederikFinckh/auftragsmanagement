@@ -148,61 +148,69 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
     switch (arg.typ) {
       case 'KONTROLLHAKEN':
         return (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={arg.kontrollhakenWert ?? false}
-                onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
-                size="small"
-              />
-            }
-            label={arg.bezeichnung || 'Kontrollhäkchen'}
-            sx={{ mr: 0 }}
-            slotProps={{ typography: { variant: 'body2' } }}
-          />
+          <Tooltip title="Voreingestellter Wert">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={arg.kontrollhakenWert ?? false}
+                  onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
+                  size="small"
+                />
+              }
+              label={arg.bezeichnung || 'Kontrollhäkchen'}
+              sx={{ mr: 0 }}
+              slotProps={{ typography: { variant: 'body2' } }}
+            />
+          </Tooltip>
         );
       case 'TOLERANZ':
         return (
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <TextField
-              placeholder="Min"
-              type="number"
-              value={arg.toleranzMin ?? ''}
-              onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
-              size="small"
-              sx={{ width: 80 }}
-            />
-            <Typography variant="body2" color="text.secondary">–</Typography>
-            <TextField
-              placeholder="Max"
-              type="number"
-              value={arg.toleranzMax ?? ''}
-              onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
-              size="small"
-              sx={{ width: 80 }}
-            />
-          </Box>
+          <Tooltip title="Voreingestellter Wert">
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <TextField
+                placeholder="Min"
+                type="number"
+                value={arg.toleranzMin ?? ''}
+                onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
+                size="small"
+                sx={{ width: 80 }}
+              />
+              <Typography variant="body2" color="text.secondary">–</Typography>
+              <TextField
+                placeholder="Max"
+                type="number"
+                value={arg.toleranzMax ?? ''}
+                onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
+                size="small"
+                sx={{ width: 80 }}
+              />
+            </Box>
+          </Tooltip>
         );
       case 'ZAHLWERT':
         return (
-          <TextField
-            placeholder="Wert"
-            type="number"
-            value={arg.zahlwert ?? ''}
-            onChange={(e) => handlePruefargumentChange(index, 'zahlwert', e.target.value === '' ? null : parseFloat(e.target.value))}
-            size="small"
-            sx={{ width: 100 }}
-          />
+          <Tooltip title="Voreingestellter Wert">
+            <TextField
+              placeholder="Wert"
+              type="number"
+              value={arg.zahlwert ?? ''}
+              onChange={(e) => handlePruefargumentChange(index, 'zahlwert', e.target.value === '' ? null : parseFloat(e.target.value))}
+              size="small"
+              sx={{ width: 100 }}
+            />
+          </Tooltip>
         );
       case 'TEXT':
         return (
-          <TextField
-            placeholder="Text"
-            value={arg.textWert ?? ''}
-            onChange={(e) => handlePruefargumentChange(index, 'textWert', e.target.value)}
-            size="small"
-            sx={{ minWidth: 120 }}
-          />
+          <Tooltip title="Voreingestellter Wert">
+            <TextField
+              placeholder="Text"
+              value={arg.textWert ?? ''}
+              onChange={(e) => handlePruefargumentChange(index, 'textWert', e.target.value)}
+              size="small"
+              sx={{ minWidth: 120 }}
+            />
+          </Tooltip>
         );
       default:
         return null;
