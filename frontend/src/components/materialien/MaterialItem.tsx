@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import PruefargumentItem from './PruefargumentItem';
@@ -19,9 +20,10 @@ interface MaterialItemProps {
   material: Materialnummer;
   onEdit: (material: Materialnummer) => void;
   onDelete: (material: Materialnummer) => void;
+  onCopy: (material: Materialnummer) => void;
 }
 
-export default function MaterialItem({ material, onEdit, onDelete }: MaterialItemProps) {
+export default function MaterialItem({ material, onEdit, onDelete, onCopy }: MaterialItemProps) {
   const [expanded, setExpanded] = useState(false);
 
   const hasPruefargumente = material.pruefargumente.length > 0;
@@ -47,6 +49,13 @@ export default function MaterialItem({ material, onEdit, onDelete }: MaterialIte
 
         {/* Aktionsgruppe rechts */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 1 }}>
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); onCopy(material); }}
+            aria-label="Material als Vorlage verwenden"
+          >
+            <ContentCopyIcon fontSize="small" />
+          </IconButton>
           <IconButton
             size="small"
             onClick={(e) => { e.stopPropagation(); onEdit(material); }}

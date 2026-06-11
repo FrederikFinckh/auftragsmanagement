@@ -29,6 +29,7 @@ export default function MaterialienListe() {
   // Dialog-Zustand
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editMaterial, setEditMaterial] = useState<Materialnummer | null>(null);
+  const [templateMaterial, setTemplateMaterial] = useState<Materialnummer | null>(null);
 
   // Lösch-Zustand
   const [deleteTarget, setDeleteTarget] = useState<Materialnummer | null>(null);
@@ -66,6 +67,14 @@ export default function MaterialienListe() {
   // Neues Material anlegen öffnen
   const handleCreate = () => {
     setEditMaterial(null);
+    setTemplateMaterial(null);
+    setDialogOpen(true);
+  };
+
+  // Als Vorlage verwenden
+  const handleCopy = (material: Materialnummer) => {
+    setEditMaterial(null);
+    setTemplateMaterial(material);
     setDialogOpen(true);
   };
 
@@ -73,6 +82,7 @@ export default function MaterialienListe() {
   const handleDialogClose = () => {
     setDialogOpen(false);
     setEditMaterial(null);
+    setTemplateMaterial(null);
   };
 
   const handleSaved = () => {
@@ -142,6 +152,7 @@ export default function MaterialienListe() {
                 material={material}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onCopy={handleCopy}
               />
             ))}
           </List>
@@ -164,6 +175,7 @@ export default function MaterialienListe() {
       <MaterialDialog
         open={dialogOpen}
         material={editMaterial}
+        template={templateMaterial}
         onClose={handleDialogClose}
         onSaved={handleSaved}
       />

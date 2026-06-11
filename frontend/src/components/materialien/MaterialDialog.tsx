@@ -9,15 +9,18 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Checkbox,
-  FormControlLabel,
   IconButton,
   Typography,
-  Paper,
   Box,
   Divider,
   Alert,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,31 +31,33 @@ import { createMaterial, updateMaterial } from '../../api/materialien';
 // Dialog zum Anlegen und Bearbeiten von Materialnummern
 interface MaterialDialogProps {
   open: boolean;
-  material: Materialnummer | null; // null = Anlegen, sonst Bearbeiten
+  material: Materialnummer | null;
+  template: Materialnummer | null;
   onClose: () => void;
-  onSaved: () => void; // Liste nach dem Speichern neu laden
+  onSaved: () => void;
 }
 
-export default function MaterialDialog({ open, material, onClose, onSaved }: MaterialDialogProps) {
+export default function MaterialDialog({ open, material, template, onClose, onSaved }: MaterialDialogProps) {
   const isEdit = material !== null;
 
-  // Formularzustand
   const [nummer, setNummer] = useState('');
   const [beschreibung, setBeschreibung] = useState('');
   const [pruefargumente, setPruefargumente] = useState<Pruefargument[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Prüfargument-Typ-Optionen
   const typOptions: PruefargumentTyp[] = ['KONTROLLHAKEN', 'TOLERANZ', 'ZAHLWERT', 'TEXT'];
 
-  // Formular zurücksetzen wenn sich der Dialog öffnet
   useEffect(() => {
     if (open) {
       if (material) {
         setNummer(material.nummer);
         setBeschreibung(material.beschreibung || '');
         setPruefargumente(material.pruefargumente.map((a) => ({ ...a })));
+      } else if (template) {
+        setNummer('');
+        setBeschreibung(template.beschreibung || '');
+        setPruefargumente(template.pruefargumente.map((a) => ({ ...a, id: null })));
       } else {
         setNummer('');
         setBeschreibung('');
@@ -61,24 +66,20 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
       setSaving(false);
       setError(null);
     }
-  }, [open, material]);
+  }, [open, material, template]);
 
-  // Neues Prüfargument hinzufügen
   const handleAddPruefargument = () => {
     setPruefargumente([...pruefargumente, createEmptyPruefargument(pruefargumente.length)]);
   };
 
-  // Prüfargument entfernen
   const handleRemovePruefargument = (index: number) => {
     setPruefargumente(pruefargumente.filter((_, i) => i !== index));
   };
 
-  // Prüfargument-Feld aktualisieren
   const handlePruefargumentChange = (index: number, field: string, value: unknown) => {
     const updated = [...pruefargumente];
     updated[index] = { ...updated[index], [field]: value };
 
-    // Wenn sich der Typ ändert, alle typspezifischen Werte zurücksetzen
     if (field === 'typ') {
       const newTyp = value as PruefargumentTyp;
       updated[index] = {
@@ -90,7 +91,6 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
         zahlwert: null,
         textWert: null,
       };
-      // Standardwert für Kontrollhaken
       if (newTyp === 'KONTROLLHAKEN') {
         updated[index].kontrollhakenWert = false;
       }
@@ -99,18 +99,15 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
     setPruefargumente(updated);
   };
 
-  // Speichern
   const handleSave = async () => {
-    // Validierung
     if (!nummer.trim()) {
       setError('Materialnummer ist ein Pflichtfeld');
       return;
     }
 
-    // Prüfargumente validieren
     for (let i = 0; i < pruefargumente.length; i++) {
       if (!pruefargumente[i].bezeichnung.trim()) {
-        setError(`Prüfargument ${i + 1}: Bezeichnung ist ein Pflichtfeld`);
+        setError(`Zeile ${i + 1}: Bezeichnung ist ein Pflichtfeld`);
         return;
       }
     }
@@ -143,29 +140,84 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
     }
   };
 
+  const renderWertCell = (arg: Pruefargument, index: number) => {
+    switch (arg.typ) {
+      case 'KONTROLLHAKEN':
+        return (
+          <Checkbox
+            checked={arg.kontrollhakenWert ?? false}
+            onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
+            size="small"
+          />
+        );
+      case 'TOLERANZ':
+        return (
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <TextField
+              placeholder="Min"
+              type="number"
+              value={arg.toleranzMin ?? ''}
+              onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
+              size="small"
+              sx={{ width: 80 }}
+            />
+            <Typography variant="body2" color="text.secondary">–</Typography>
+            <TextField
+              placeholder="Max"
+              type="number"
+              value={arg.toleranzMax ?? ''}
+              onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
+              size="small"
+              sx={{ width: 80 }}
+            />
+          </Box>
+        );
+      case 'ZAHLWERT':
+        return (
+          <TextField
+            placeholder="Wert"
+            type="number"
+            value={arg.zahlwert ?? ''}
+            onChange={(e) => handlePruefargumentChange(index, 'zahlwert', e.target.value === '' ? null : parseFloat(e.target.value))}
+            size="small"
+            sx={{ width: 100 }}
+          />
+        );
+      case 'TEXT':
+        return (
+          <TextField
+            placeholder="Text"
+            value={arg.textWert ?? ''}
+            onChange={(e) => handlePruefargumentChange(index, 'textWert', e.target.value)}
+            size="small"
+            sx={{ minWidth: 120 }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>
-        {isEdit ? 'Material bearbeiten' : 'Neues Material anlegen'}
+        {isEdit ? 'Material bearbeiten' : template ? 'Neues Material aus Vorlage' : 'Neues Material anlegen'}
       </DialogTitle>
 
       <DialogContent>
-        {/* Fehler-Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
-        {/* Warnung bei Bearbeitung */}
         {isEdit && material && material.auftragCount > 0 && (
           <Alert severity="warning" sx={{ mb: 2 }}>
             Dieses Material wird in {material.auftragCount} Auftrag{material.auftragCount !== 1 ? 'en' : ''} verwendet. Änderungen an Prüfargumenten werden in alle bestehenden Instanzen synchronisiert.
           </Alert>
         )}
 
-        {/* Grundfelder */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
           <TextField
             label="Materialnummer"
             value={nummer}
@@ -173,26 +225,22 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
             required
             autoFocus
             size="small"
-            fullWidth
+            sx={{ flex: 1 }}
           />
           <TextField
             label="Beschreibung"
             value={beschreibung}
             onChange={(e) => setBeschreibung(e.target.value)}
-            multiline
-            rows={2}
             size="small"
-            fullWidth
+            sx={{ flex: 2 }}
           />
         </Box>
 
-        {/* Trennlinie */}
         <Divider sx={{ my: 2 }} />
 
-        {/* Kopfzeile Prüfargumente */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            Prüfargumente
+          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+            Prüfargumente ({pruefargumente.length})
           </Typography>
           <Button
             variant="outlined"
@@ -200,118 +248,75 @@ export default function MaterialDialog({ open, material, onClose, onSaved }: Mat
             startIcon={<AddIcon />}
             onClick={handleAddPruefargument}
           >
-            Prüfargument hinzufügen
+            Hinzufügen
           </Button>
         </Box>
 
-        {/* Leerzustand */}
-        {pruefargumente.length === 0 && (
+        {pruefargumente.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
             Noch keine Prüfargumente hinzugefügt
           </Typography>
-        )}
-
-        {/* Prüfargument-Karten */}
-        {pruefargumente.map((arg, index) => (
-          <Paper key={index} variant="outlined" sx={{ p: 2, mb: 2 }}>
-            {/* Karten-Kopfzeile */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Prüfargument {index + 1}
-              </Typography>
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleRemovePruefargument(index)}
-                title="Prüfargument entfernen"
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            {/* Erste Feldreihe: Bezeichnung + Typ */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField
-                label="Bezeichnung"
-                value={arg.bezeichnung}
-                onChange={(e) => handlePruefargumentChange(index, 'bezeichnung', e.target.value)}
-                required
-                size="small"
-                sx={{ flexGrow: 1, minWidth: 200 }}
-              />
-              <FormControl size="small" sx={{ minWidth: 180 }}>
-                <InputLabel>Typ</InputLabel>
-                <Select
-                  value={arg.typ}
-                  label="Typ"
-                  onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}
-                >
-                  {typOptions.map((typ) => (
-                    <MenuItem key={typ} value={typ}>
-                      {PRUEFARGUMENT_TYP_LABELS[typ]}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Typspezifische Felder */}
-            <Box sx={{ mt: 1.5 }}>
-              {arg.typ === 'KONTROLLHAKEN' && (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={arg.kontrollhakenWert ?? false}
-                      onChange={(e) => handlePruefargumentChange(index, 'kontrollhakenWert', e.target.checked)}
+        ) : (
+          <Table size="small" padding="none">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: 40, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>#</TableCell>
+                <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem', minWidth: 200 }}>Bezeichnung</TableCell>
+                <TableCell sx={{ width: 130, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Typ</TableCell>
+                <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Wert</TableCell>
+                <TableCell sx={{ width: 36, px: 1, py: 0.5 }} />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {pruefargumente.map((arg, index) => (
+                <TableRow key={index} hover>
+                  <TableCell sx={{ px: 1, py: 0.5, color: 'text.secondary', fontSize: '0.8rem' }}>
+                    {index + 1}
+                  </TableCell>
+                  <TableCell sx={{ px: 1, py: 0.5 }}>
+                    <TextField
+                      value={arg.bezeichnung}
+                      onChange={(e) => handlePruefargumentChange(index, 'bezeichnung', e.target.value)}
+                      placeholder="Bezeichnung"
+                      size="small"
+                      fullWidth
+                      variant="standard"
                     />
-                  }
-                  label="Kontrollhaken gesetzt"
-                />
-              )}
-              {arg.typ === 'TOLERANZ' && (
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField
-                    label="Min"
-                    type="number"
-                    value={arg.toleranzMin ?? ''}
-                    onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
-                    size="small"
-                    sx={{ flexGrow: 1 }}
-                  />
-                  <TextField
-                    label="Max"
-                    type="number"
-                    value={arg.toleranzMax ?? ''}
-                    onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
-                    size="small"
-                    sx={{ flexGrow: 1 }}
-                  />
-                </Box>
-              )}
-              {arg.typ === 'ZAHLWERT' && (
-                <TextField
-                  label="Zahlwert"
-                  type="number"
-                  value={arg.zahlwert ?? ''}
-                  onChange={(e) => handlePruefargumentChange(index, 'zahlwert', e.target.value === '' ? null : parseFloat(e.target.value))}
-                  size="small"
-                  fullWidth
-                />
-              )}
-              {arg.typ === 'TEXT' && (
-                <TextField
-                  label="Text"
-                  value={arg.textWert ?? ''}
-                  onChange={(e) => handlePruefargumentChange(index, 'textWert', e.target.value)}
-                  multiline
-                  rows={2}
-                  size="small"
-                  fullWidth
-                />
-              )}
-            </Box>
-          </Paper>
-        ))}
+                  </TableCell>
+                  <TableCell sx={{ px: 1, py: 0.5 }}>
+                    <FormControl size="small" fullWidth variant="standard">
+                      <Select
+                        value={arg.typ}
+                        onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}
+                        disableUnderline
+                      >
+                        {typOptions.map((typ) => (
+                          <MenuItem key={typ} value={typ} sx={{ fontSize: '0.8rem' }}>
+                            {PRUEFARGUMENT_TYP_LABELS[typ]}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell sx={{ px: 1, py: 0.5 }}>
+                    {renderWertCell(arg, index)}
+                  </TableCell>
+                  <TableCell sx={{ px: 0.5, py: 0.5 }}>
+                    <Tooltip title="Entfernen">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleRemovePruefargument(index)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </DialogContent>
 
       <DialogActions>
