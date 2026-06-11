@@ -19,7 +19,7 @@ import type { Auftrag } from '../../types/auftrag';
 
 // Listenbereich der linken Seitenleiste für Aufträge
 export default function AuftraegeListe() {
-  const { openAuftragTab, closeAuftragTab } = useTabContext();
+  const { openAuftragTab, closeTopTab } = useTabContext();
 
   const [auftraege, setAuftraege] = useState<Auftrag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,7 +103,7 @@ export default function AuftraegeListe() {
   // Nach Löschung: Tab schließen und Liste neu laden
   const handleDeleted = () => {
     if (deleteTarget) {
-      closeAuftragTab(deleteTarget.id);
+      closeTopTab(`auftrag-${deleteTarget.id}`);
     }
     loadAuftraege();
   };

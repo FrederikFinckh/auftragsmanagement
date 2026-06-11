@@ -4,13 +4,12 @@ import AuftragTabLeiste from './AuftragTabLeiste';
 import InstanzTabLeiste from './InstanzTabLeiste';
 import AuftragUebersicht from './AuftragUebersicht';
 import InstanzTab from '../instanz/InstanzTab';
+import MaterialTab from '../materialien/MaterialTab';
 
-// Haupt-Wrapper für den Mittelbereich mit zwei Tab-Zeilen und Inhaltsbereich
 export default function MitteBereich() {
-  const { auftragTabs, aktiverAuftragTabId, aktuelleAktiverInstanzTabId } = useTabContext();
+  const { topTabs, aktiverAuftragTabId, aktuelleAktiverInstanzTabId, isMaterialTabActive, aktiveMaterialTab } = useTabContext();
 
-  // Leerzustand: keine Tabs geöffnet
-  if (auftragTabs.length === 0) {
+  if (topTabs.length === 0) {
     return (
       <Box
         sx={{
@@ -21,14 +20,12 @@ export default function MitteBereich() {
         }}
       >
         <Typography variant="h6" color="text.secondary">
-          Auftrag auswählen, um ihn hier zu öffnen
+          Auftrag oder Material auswählen, um ihn hier zu öffnen
         </Typography>
       </Box>
     );
   }
 
-  // Bestimmt den Inhalt der unteren Tab-Zeile:
-  // - null = Übersicht, number = Instanz-Tab
   const showInstanzContent = aktiverAuftragTabId !== null && aktuelleAktiverInstanzTabId !== null;
 
   return (
@@ -40,26 +37,26 @@ export default function MitteBereich() {
         overflow: 'hidden',
       }}
     >
-      {/* Obere Tab-Zeile: Auftrag-Tabs */}
       <AuftragTabLeiste />
 
-      {/* Untere Tab-Zeile: Instanz-Tabs (nur wenn ein Auftrag aktiv ist) */}
-      <InstanzTabLeiste />
+      {!isMaterialTabActive && <InstanzTabLeiste />}
 
-      {/* Tab-Inhaltsbereich */}
       <Box
         sx={{
           flexGrow: 1,
           overflow: 'auto',
         }}
       >
-        {showInstanzContent && aktuelleAktiverInstanzTabId !== null ? (
-          // Instanz-Detail mit Prüfformular
+        {isMaterialTabActive && aktiveMaterialTab ? (
+          <MaterialTab
+            key={aktiveMaterialTab.tabId}
+            tab={aktiveMaterialTab}
+          />
+        ) : showInstanzContent && aktuelleAktiverInstanzTabId !== null ? (
           <InstanzTab instanzId={aktuelleAktiverInstanzTabId} />
-        ) : (
-          // Übersicht: Karten-Grid der Instanzen
+        ) : aktiverAuftragTabId !== null ? (
           <AuftragUebersicht />
-        )}
+        ) : null}
       </Box>
     </Box>
   );

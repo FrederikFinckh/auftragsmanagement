@@ -1,10 +1,20 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { Auftrag } from '../types/auftrag';
+import type { Materialnummer } from '../types/material';
 
 // Tab-Datenstrukturen
 export interface AuftragTab {
+  type: 'auftrag';
   auftragId: number;
   auftragsnummer: string;
+}
+
+export interface MaterialTabData {
+  type: 'material';
+  tabId: string;
+  materialId: number | null;
+  mode: 'create' | 'edit' | 'copy';
+  nummer: string;
 }
 
 export interface InstanzTab {
@@ -12,14 +22,18 @@ export interface InstanzTab {
   nummer: number;
 }
 
+// Vereinigter Tab-Typ für die obere Zeile
+export type TopTab = AuftragTab | MaterialTabData;
+
 // Context-Typ
 interface TabContextType {
-  // Auftrag-Tabs (obere Zeile)
-  auftragTabs: AuftragTab[];
-  aktiverAuftragTabId: number | null;
+  // Obere Tab-Zeile (Auftrag + Material gemischt)
+  topTabs: TopTab[];
+  aktiverTopTabId: string | null;
   openAuftragTab: (auftrag: Auftrag) => void;
-  closeAuftragTab: (auftragId: number) => void;
-  setAktiverAuftragTab: (auftragId: number) => void;
+  openMaterialTab: (mode: 'create' | 'edit' | 'copy', material?: Materialnummer) => void;
+  closeTopTab: (tabId: string) => void;
+  setAktiverTopTab: (tabId: string) => void;
 
   // Instanz-Tabs (untere Zeile, pro Auftrag)
   instanzTabs: Map<number, InstanzTab[]>;
@@ -28,14 +42,20 @@ interface TabContextType {
   closeInstanzTab: (auftragId: number, instanzId: number) => void;
   setAktiverInstanzTab: (auftragId: number, instanzId: number | null) => void;
 
-  // Hilfsfunktion: Aktuelle Instanz-Tabs für den aktiven Auftrag
+  // Hilfsfunktionen
   aktuelleInstanzTabs: InstanzTab[];
   aktuelleAktiverInstanzTabId: number | null;
+  aktiverAuftragTabId: number | null;
+  isMaterialTabActive: boolean;
+  aktiveMaterialTab: MaterialTabData | null;
+
+  // Benachrichtigung bei Material-Änderungen
+  materialSavedVersion: number;
+  notifyMaterialSaved: () => void;
 }
 
 const TabContext = createContext<TabContextType | null>(null);
 
-// Hook für den Tab-Context
 export function useTabContext() {
   const ctx = useContext(TabContext);
   if (!ctx) {
@@ -44,62 +64,111 @@ export function useTabContext() {
   return ctx;
 }
 
-// Provider-Komponente
-export function TabProvider({ children }: { children: ReactNode }) {
-  // Auftrag-Tabs
-  const [auftragTabs, setAuftragTabs] = useState<AuftragTab[]>([]);
-  const [aktiverAuftragTabId, setAktiverAuftragTabId] = useState<number | null>(null);
+let materialTabCounter = 0;
 
-  // Instanz-Tabs (Map: auftragId → InstanzTab[])
+function generateMaterialTabId(): string {
+  materialTabCounter += 1;
+  return `material-${materialTabCounter}`;
+}
+
+export function TabProvider({ children }: { children: ReactNode }) {
+  const [topTabs, setTopTabs] = useState<TopTab[]>([]);
+  const [aktiverTopTabId, setAktiverTopTabId] = useState<string | null>(null);
+
   const [instanzTabs, setInstanzTabs] = useState<Map<number, InstanzTab[]>>(new Map());
   const [aktiverInstanzTabId, setAktiverInstanzTabIdMap] = useState<Map<number, number | null>>(new Map());
 
+  const [materialSavedVersion, setMaterialSavedVersion] = useState(0);
+  const notifyMaterialSaved = useCallback(() => {
+    setMaterialSavedVersion((v) => v + 1);
+  }, []);
+
   // Auftrag-Tab öffnen
   const openAuftragTab = useCallback((auftrag: Auftrag) => {
-    setAuftragTabs((prev) => {
-      const exists = prev.some((t) => t.auftragId === auftrag.id);
+    const tabId = `auftrag-${auftrag.id}`;
+    setTopTabs((prev) => {
+      const exists = prev.some((t) => t.type === 'auftrag' && t.auftragId === auftrag.id);
       if (exists) return prev;
-      return [...prev, { auftragId: auftrag.id, auftragsnummer: auftrag.auftragsnummer }];
+      const newTab: AuftragTab = { type: 'auftrag', auftragId: auftrag.id, auftragsnummer: auftrag.auftragsnummer };
+      return [...prev, newTab];
     });
-    setAktiverAuftragTabId(auftrag.id);
+    setAktiverTopTabId(tabId);
   }, []);
 
-  // Auftrag-Tab schließen
-  const closeAuftragTab = useCallback((auftragId: number) => {
-    setAuftragTabs((prev) => {
-      const idx = prev.findIndex((t) => t.auftragId === auftragId);
+  // Material-Tab öffnen
+  const openMaterialTab = useCallback((mode: 'create' | 'edit' | 'copy', material?: Materialnummer) => {
+    if (mode === 'edit' && material) {
+      const tabId = `material-edit-${material.id}`;
+      setTopTabs((prev) => {
+        const exists = prev.some((t) => t.type === 'material' && t.tabId === tabId);
+        if (exists) return prev;
+        const newTab: MaterialTabData = {
+          type: 'material',
+          tabId,
+          materialId: material.id,
+          mode: 'edit',
+          nummer: material.nummer,
+        };
+        return [...prev, newTab];
+      });
+      setAktiverTopTabId(tabId);
+    } else {
+      const tabId = generateMaterialTabId();
+      const newTab: MaterialTabData = {
+        type: 'material',
+        tabId,
+        materialId: mode === 'copy' && material ? material.id : null,
+        mode: mode === 'copy' ? 'copy' : 'create',
+        nummer: mode === 'copy' && material ? material.nummer : '',
+      };
+      setTopTabs((prev) => [...prev, newTab]);
+      setAktiverTopTabId(tabId);
+    }
+  }, []);
+
+  // Tab schließen (obere Zeile)
+  const closeTopTab = useCallback((tabId: string) => {
+    setTopTabs((prev) => {
+      const idx = prev.findIndex((t) =>
+        t.type === 'auftrag' ? `auftrag-${t.auftragId}` === tabId : t.tabId === tabId
+      );
       if (idx === -1) return prev;
 
-      const next = prev.filter((t) => t.auftragId !== auftragId);
+      const closed = prev[idx];
+      const next = prev.filter((t) =>
+        t.type === 'auftrag' ? `auftrag-${t.auftragId}` !== tabId : t.tabId !== tabId
+      );
 
-      // Wenn der geschlossene Tab aktiv war, den vorherigen oder nächsten aktivieren
-      setAktiverAuftragTabId((currentActive) => {
-        if (currentActive !== auftragId) return currentActive;
+      setAktiverTopTabId((currentActive) => {
+        if (currentActive !== tabId) return currentActive;
         if (next.length === 0) return null;
-        // Nachbar-Tab aktivieren
         const newIdx = Math.min(idx, next.length - 1);
-        return next[newIdx].auftragId;
+        const neighbor = next[newIdx];
+        return neighbor.type === 'auftrag' ? `auftrag-${neighbor.auftragId}` : neighbor.tabId;
       });
 
-      return next;
-    });
+      // Wenn Auftrag-Tab geschlossen: Instanz-Tabs aufräumen
+      if (closed.type === 'auftrag') {
+        const auftragId = closed.auftragId;
+        setInstanzTabs((prev) => {
+          const next = new Map(prev);
+          next.delete(auftragId);
+          return next;
+        });
+        setAktiverInstanzTabIdMap((prev) => {
+          const next = new Map(prev);
+          next.delete(auftragId);
+          return next;
+        });
+      }
 
-    // Instanz-Tabs für diesen Auftrag entfernen
-    setInstanzTabs((prev) => {
-      const next = new Map(prev);
-      next.delete(auftragId);
-      return next;
-    });
-    setAktiverInstanzTabIdMap((prev) => {
-      const next = new Map(prev);
-      next.delete(auftragId);
       return next;
     });
   }, []);
 
-  // Aktiven Auftrag-Tab setzen
-  const setAktiverAuftragTab = useCallback((auftragId: number) => {
-    setAktiverAuftragTabId(auftragId);
+  // Aktiven Top-Tab setzen
+  const setAktiverTopTab = useCallback((tabId: string) => {
+    setAktiverTopTabId(tabId);
   }, []);
 
   // Instanz-Tab öffnen
@@ -132,7 +201,6 @@ export function TabProvider({ children }: { children: ReactNode }) {
       return next;
     });
 
-    // Wenn der geschlossene Tab aktiv war, auf Übersicht (null) oder Nachbar setzen
     setAktiverInstanzTabIdMap((prev) => {
       const currentActive = prev.get(auftragId);
       if (currentActive !== instanzId) return prev;
@@ -143,7 +211,7 @@ export function TabProvider({ children }: { children: ReactNode }) {
 
       const next = new Map(prev);
       if (remaining.length === 0) {
-        next.set(auftragId, null); // Zurück zur Übersicht
+        next.set(auftragId, null);
       } else {
         const newIdx = Math.min(idx, remaining.length - 1);
         next.set(auftragId, remaining[newIdx].instanzId);
@@ -161,7 +229,21 @@ export function TabProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // Abgeleitete Werte für den aktiven Auftrag
+  // Abgeleitete Werte
+  const aktiverAuftragTab = topTabs.find(
+    (t) => t.type === 'auftrag' && `auftrag-${t.auftragId}` === aktiverTopTabId
+  ) as AuftragTab | undefined;
+
+  const aktiverAuftragTabId = aktiverAuftragTab?.auftragId ?? null;
+
+  const isMaterialTabActive = topTabs.some(
+    (t) => t.type === 'material' && t.tabId === aktiverTopTabId
+  );
+
+  const aktiveMaterialTab = topTabs.find(
+    (t) => t.type === 'material' && t.tabId === aktiverTopTabId
+  ) as MaterialTabData | undefined ?? null;
+
   const aktuelleInstanzTabs = aktiverAuftragTabId !== null
     ? (instanzTabs.get(aktiverAuftragTabId) || [])
     : [];
@@ -173,11 +255,12 @@ export function TabProvider({ children }: { children: ReactNode }) {
   return (
     <TabContext.Provider
       value={{
-        auftragTabs,
-        aktiverAuftragTabId,
+        topTabs,
+        aktiverTopTabId,
         openAuftragTab,
-        closeAuftragTab,
-        setAktiverAuftragTab,
+        openMaterialTab,
+        closeTopTab,
+        setAktiverTopTab,
         instanzTabs,
         aktiverInstanzTabId,
         openInstanzTab,
@@ -185,6 +268,11 @@ export function TabProvider({ children }: { children: ReactNode }) {
         setAktiverInstanzTab,
         aktuelleInstanzTabs,
         aktuelleAktiverInstanzTabId,
+        aktiverAuftragTabId,
+        isMaterialTabActive,
+        aktiveMaterialTab,
+        materialSavedVersion,
+        notifyMaterialSaved,
       }}
     >
       {children}

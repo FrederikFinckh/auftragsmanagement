@@ -2,14 +2,11 @@ import { Tabs, Tab, Box, IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTabContext } from '../../context/TabContext';
 
-// Untere Tab-Zeile: Übersicht-Tab (nicht schließbar) + Instanz-Tabs des aktiven Auftrags
 export default function InstanzTabLeiste() {
   const { aktiverAuftragTabId, aktuelleInstanzTabs, aktuelleAktiverInstanzTabId, setAktiverInstanzTab, closeInstanzTab } = useTabContext();
 
-  // Keine Instanz-Tabs anzeigen, wenn kein Auftrag aktiv
   if (aktiverAuftragTabId === null) return null;
 
-  // Tab-Wert: null = Übersicht, number = Instanz-Id
   const tabValue = aktuelleAktiverInstanzTabId ?? 'overview';
 
   return (
@@ -26,7 +23,6 @@ export default function InstanzTabLeiste() {
         variant="scrollable"
         scrollButtons="auto"
       >
-        {/* Übersicht-Tab – immer vorhanden, nicht schließbar */}
         <Tab
           value="overview"
           label={
@@ -37,7 +33,6 @@ export default function InstanzTabLeiste() {
           sx={{ minHeight: 36, textTransform: 'none' }}
         />
 
-        {/* Instanz-Tabs */}
         {aktuelleInstanzTabs.map((tab) => (
           <Tab
             key={tab.instanzId}
