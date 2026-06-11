@@ -14,7 +14,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import type { Auftrag } from '../../types/auftrag';
 import type { InstanzUebersicht } from '../../types/instanz';
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
