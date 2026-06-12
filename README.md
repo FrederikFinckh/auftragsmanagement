@@ -23,13 +23,13 @@ https://adoptium.net/ – die Version **17 (LTS)** wählen, herunterladen und in
 
 ## Programm starten
 
-1. Die Datei **HaraldAuftrag-1.0.0.jar** in einen beliebigen Ordner kopieren.
+1. Die Datei **Auftragsmanager-1.0.0.jar** in einen beliebigen Ordner kopieren.
 2. Ein Terminal öffnen.
 3. In den Ordner wechseln, in dem die JAR-Datei liegt.
 4. Folgenden Befehl eingeben und mit Enter bestätigen:
 
 ```
-java -jar HaraldAuftrag-1.0.0.jar
+java -jar Auftragsmanager-1.0.0.jar
 ```
 
 5. Kurz warten, bis im Terminal eine Zeile wie diese erscheint:
