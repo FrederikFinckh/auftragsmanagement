@@ -249,3 +249,5 @@ cd frontend && pnpm dev
 ```
 
 Die SQLite-Datenbank wird automatisch unter `data/auftrag.db` erstellt.
+
+# Always use pnpm NOT npm NOT npx NOT something else!
