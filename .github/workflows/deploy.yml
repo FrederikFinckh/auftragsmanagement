@@ -32,7 +32,8 @@ jobs:
 
       - name: Upload JAR to VPS
         run: |
-          scp -i ~/.ssh/deploy_key "./release_jar/*.jar" root@${{ secrets.VPS_IP }}:/root/AuftragsManager/Auftragsmanager.jar
+          JAR_FILE=$(ls ./release_jar/Auftragsmanager-*.jar | head -1)
+          scp -i ~/.ssh/deploy_key "$JAR_FILE" root@${{ secrets.VPS_IP }}:/root/AuftragsManager/Auftragsmanager.jar
 
       - name: Run start.sh on VPS
         run: |
