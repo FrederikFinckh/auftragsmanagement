@@ -15,6 +15,15 @@ import {
   TableRow,
   Box,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/de';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import type { Dayjs } from 'dayjs';
+
+dayjs.extend(customParseFormat);
 import type { Auftrag, AuftragCreate } from '../../types/auftrag';
 import type { Materialnummer } from '../../types/material';
 import { createAuftrag, updateAuftrag } from '../../api/auftraege';
@@ -36,7 +45,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
   const [step, setStep] = useState<1 | 2>(1);
 
   // Formularfelder
-  const [datum, setDatum] = useState('');
+  const [datum, setDatum] = useState<Dayjs | null>(dayjs());
   const [auftragsnummer, setAuftragsnummer] = useState('');
   const [stueckzahl, setStueckzahl] = useState('');
   const [kunde, setKunde] = useState('');
@@ -62,7 +71,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
   // Beim Bearbeiten: Formular mit bestehenden Werten füllen
   useEffect(() => {
     if (open && auftrag) {
-      setDatum(auftrag.datum || '');
+      setDatum(auftrag.datum ? dayjs(auftrag.datum, 'DD.MM.YYYY') : dayjs());
       setAuftragsnummer(auftrag.auftragsnummer || '');
       setStueckzahl(String(auftrag.stueckzahl));
       setKunde(auftrag.kunde || '');
@@ -77,7 +86,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
   // Formular zurücksetzen
   const resetForm = () => {
     setStep(1);
-    setDatum('');
+    setDatum(dayjs());
     setAuftragsnummer('');
     setStueckzahl('');
     setKunde('');
@@ -97,7 +106,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
   const validateStep1 = (): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!datum.trim()) {
+    if (!datum) {
       errors.datum = 'Datum ist ein Pflichtfeld';
     }
     if (!auftragsnummer.trim()) {
@@ -139,7 +148,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
     setError(null);
 
     const data: AuftragCreate = {
-      datum: datum.trim(),
+      datum: datum ? datum.format('DD.MM.YYYY') : '',
       auftragsnummer: auftragsnummer.trim(),
       stueckzahl: parseInt(stueckzahl, 10),
       kunde: kunde.trim() || null,
@@ -167,7 +176,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
     setError(null);
 
     const data: AuftragCreate = {
-      datum: datum.trim(),
+      datum: datum ? datum.format('DD.MM.YYYY') : '',
       auftragsnummer: auftragsnummer.trim(),
       stueckzahl: auftrag.stueckzahl, // Stückzahl nicht änderbar
       kunde: kunde.trim() || null,
@@ -191,6 +200,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
     : (step === 1 ? 'Neuen Auftrag anlegen' : 'Eingaben überprüfen');
 
   return (
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="de">
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{dialogTitle}</DialogTitle>
 
@@ -204,16 +214,20 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
         {isEdit || step === 1 ? (
           /* Eingabefelder */
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField
+            <DatePicker
               label="Datum"
-              placeholder="TT.MM.JJJJ"
               value={datum}
-              onChange={(e) => setDatum(e.target.value)}
-              required
-              size="small"
-              fullWidth
-              error={!!fieldErrors.datum}
-              helperText={fieldErrors.datum}
+              onChange={(newValue) => setDatum(newValue)}
+              format="DD.MM.YYYY"
+              slotProps={{
+                textField: {
+                  required: true,
+                  size: 'small',
+                  fullWidth: true,
+                  error: !!fieldErrors.datum,
+                  helperText: fieldErrors.datum,
+                },
+              }}
             />
             <TextField
               label="Auftragsnummer"
@@ -272,7 +286,7 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
               <TableBody>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Datum:</TableCell>
-                  <TableCell>{datum}</TableCell>
+                  <TableCell>{datum ? datum.format('DD.MM.YYYY') : '—'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Auftragsnummer:</TableCell>
@@ -333,5 +347,6 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
         )}
       </DialogActions>
     </Dialog>
+    </LocalizationProvider>
   );
 }
