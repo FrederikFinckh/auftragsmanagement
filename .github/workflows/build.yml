@@ -21,10 +21,23 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+          cache: gradle
 
       - uses: pnpm/action-setup@v6
         with:
           version: 11
+          cache: true
+          cache_dependency_path: frontend/pnpm-lock.yaml
+
+      - name: Cache Gradle wrapper and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle.kts', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Build with Gradle
         run: ./gradlew build
