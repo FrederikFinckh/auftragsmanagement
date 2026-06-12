@@ -1,51 +1,34 @@
 name: Release
 
-# ── When does this run? ──────────────────────────────────
-# When a tag matching "v*" (e.g., v0.0.1, v1.2.3) is pushed
 on:
   push:
     tags:
       - 'v*'
 
-# ── Permissions ──────────────────────────────────────────
-# The workflow needs write access to create releases
 permissions:
   contents: write
 
-# ── What does it do? ─────────────────────────────────────
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      upload-jar: true
+
   release:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clone your repo into the runner
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # 2. Install the JDK (adjust version/distribution to your project)
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - name: Download JAR
+        uses: actions/download-artifact@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          name: Auftragsmanager
+          path: build/libs
 
-      # 3. Install pnpm
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11
-
-      # 4. Build the project
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      # 5. Create a GitHub Release and upload the JAR
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # Find the JAR file in build/libs. The glob pattern handles
-          # whatever your actual JAR filename is.
           files: build/libs/*.jar
-          # The release name and tag come from the git tag automatically
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
