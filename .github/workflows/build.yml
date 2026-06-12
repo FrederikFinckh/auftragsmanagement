@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
@@ -30,7 +30,7 @@ jobs:
           cache_dependency_path: frontend/pnpm-lock.yaml
 
       - name: Cache Gradle wrapper and dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload JAR
         if: github.event_name == 'workflow_call' && inputs.upload-jar
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Auftragsmanager
           path: build/libs/Auftragsmanager-*.jar
