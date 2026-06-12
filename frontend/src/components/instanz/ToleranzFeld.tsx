@@ -84,7 +84,7 @@ export default function ToleranzFeld({ wert, onChange, kontrolleAbgeschlossen = 
           {wert.bezeichnung}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          (Grenzen: {[min != null ? 'Min: '+min : null, max != null ? 'Max: '+max : null].filter(x=>x!=null).join(', ')}
+          (Grenzen: {[min != null ? 'Min: '+min : null, max != null ? 'Max: '+max : null].filter(x=>x!=null).join(', ')})
         </Typography>
         {statusIcon}
       </Box>
