@@ -212,6 +212,9 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
 
         {/* Prüfargument-Formular */}
         <Box sx={{ px: 1.5, py: 1 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Prüfargumente ({instanz.werte.length})
+          </Typography>
           <PruefargumentFormular
             werte={instanz.werte}
             onChange={handleWertChange}

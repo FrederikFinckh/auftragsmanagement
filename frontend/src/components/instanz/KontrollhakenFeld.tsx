@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, Box } from '@mui/material';
+import { Checkbox, FormControlLabel, Box, Tooltip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import type { InstanzWert } from '../../types/instanz';
@@ -13,12 +13,12 @@ interface KontrollhakenFeldProps {
 
 export default function KontrollhakenFeld({ wert, onChange, kontrolleAbgeschlossen = false }: KontrollhakenFeldProps) {
   const checked = wert.kontrollhakenWert ?? false;
+  const abgeschlossenDisabled = kontrolleAbgeschlossen && !wert.veraltet;
 
   const handleChange = (_e: React.ChangeEvent<HTMLInputElement>, newChecked: boolean) => {
     onChange(wert.id, { kontrollhakenWert: newChecked });
   };
 
-  // Status-Icon wenn Kontrolle abgeschlossen
   const statusIcon = kontrolleAbgeschlossen && !wert.veraltet && (
     checked
       ? <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
@@ -26,35 +26,36 @@ export default function KontrollhakenFeld({ wert, onChange, kontrolleAbgeschloss
   );
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={checked}
-            onChange={handleChange}
-            disabled={wert.veraltet}
-            size="small"
-            sx={{
-              // Farbliche Hervorhebung der Checkbox wenn Kontrolle abgeschlossen
-              ...(kontrolleAbgeschlossen && !wert.veraltet && checked && {
-                color: 'success.main',
-                '&.Mui-checked': { color: 'success.main' },
-              }),
-              ...(kontrolleAbgeschlossen && !wert.veraltet && !checked && {
-                color: 'error.main',
-              }),
-            }}
-          />
-        }
-        label={wert.bezeichnung}
-        sx={{
-          ...(wert.veraltet && {
-            opacity: 0.5,
-            textDecoration: 'line-through',
-          }),
-        }}
-      />
-      {statusIcon}
-    </Box>
+    <Tooltip title="Bearbeiten nach abgeschlossener Kontrolle nicht möglich" disableHoverListener={!abgeschlossenDisabled}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ...(abgeschlossenDisabled && { cursor: 'not-allowed' }) }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={checked}
+              onChange={handleChange}
+              disabled={wert.veraltet || kontrolleAbgeschlossen}
+              size="small"
+              sx={{
+                ...(kontrolleAbgeschlossen && !wert.veraltet && checked && {
+                  color: 'success.main',
+                  '&.Mui-checked': { color: 'success.main' },
+                }),
+                ...(kontrolleAbgeschlossen && !wert.veraltet && !checked && {
+                  color: 'error.main',
+                }),
+              }}
+            />
+          }
+          label={wert.bezeichnung}
+          sx={{
+            ...(wert.veraltet && {
+              opacity: 0.5,
+              textDecoration: 'line-through',
+            }),
+          }}
+        />
+        {statusIcon}
+      </Box>
+    </Tooltip>
   );
 }

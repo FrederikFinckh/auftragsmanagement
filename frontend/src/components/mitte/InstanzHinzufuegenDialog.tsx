@@ -75,13 +75,14 @@ export default function InstanzHinzufuegenDialog({ auftragId, open, onClose, onA
         )}
         <TextField
           label="Anzahl neuer Instanzen"
-          type="number"
+          type="text"
+          inputMode="numeric"
           value={anzahl}
           onChange={(e) => setAnzahl(e.target.value)}
           required
           size="small"
           fullWidth
-          slotProps={{ htmlInput: { min: 1 } }}
+          slotProps={{ htmlInput: { pattern: '[0-9]*' } }}
           sx={{ mt: 1 }}
           autoFocus
         />

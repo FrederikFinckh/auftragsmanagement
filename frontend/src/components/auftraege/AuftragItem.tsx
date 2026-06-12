@@ -13,9 +13,36 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import type { Auftrag } from '../../types/auftrag';
-import type { InstanzUebersicht } from '../../types/instanz';
+import type { InstanzUebersicht, InstanzWert } from '../../types/instanz';
+
+// Prüft ob ein einzelner InstanzWert durchgefallen ist
+function istWertFehlgeschlagen(wert: InstanzWert): boolean {
+  if (wert.veraltet) return false;
+  switch (wert.typ) {
+    case 'KONTROLLHAKEN':
+      return wert.kontrollhakenWert === false;
+    case 'TOLERANZ': {
+      if (wert.zahlwert == null) return true;
+      if (wert.toleranzMin != null && wert.toleranzMax != null) {
+        return wert.zahlwert < wert.toleranzMin || wert.zahlwert > wert.toleranzMax;
+      }
+      return false;
+    }
+    case 'ZAHLWERT':
+    case 'TEXT':
+      return false;
+    default:
+      return false;
+  }
+}
+
+// Prüft ob irgend ein Prüfargument der Instanz durchgefallen ist
+function hatFehlgeschlageneWerte(instanz: InstanzUebersicht): boolean {
+  return instanz.werte.some(istWertFehlgeschlagen);
+}
 import { getInstanzenFuerAuftrag } from '../../api/instanzen';
 import { useTabContext } from '../../context/TabContext';
 
@@ -111,7 +138,9 @@ export default function AuftragItem({ auftrag, onEdit, onDelete, onInstanzClick 
                       <Typography variant="body2">
                         {auftrag.auftragsnummer} – {inst.nummer}
                       </Typography>
-                      {inst.kontrolleAbgeschlossen ? (
+                      {inst.kontrolleAbgeschlossen && hatFehlgeschlageneWerte(inst) ? (
+                        <CancelIcon sx={{ color: 'error.main', fontSize: 16 }} />
+                      ) : inst.kontrolleAbgeschlossen ? (
                         <CheckCircleIcon sx={{ color: 'success.main', fontSize: 16 }} />
                       ) : (
                         <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 16 }} />

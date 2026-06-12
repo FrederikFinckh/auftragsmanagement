@@ -1,11 +1,11 @@
-import { Box, Typography, Divider } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
 import type { InstanzWert } from '../../types/instanz';
 import KontrollhakenFeld from './KontrollhakenFeld';
 import ToleranzFeld from './ToleranzFeld';
 import ZahlwertFeld from './ZahlwertFeld';
 import TextFeld from './TextFeld';
 
-// Liste aller Prüfargument-Felder mit Auto-Save
+// Liste aller Prüfargument-Felder mit Auto-Save (2 Spalten)
 interface PruefargumentFormularProps {
   werte: InstanzWert[];
   onChange: (wertId: number, data: Record<string, unknown>) => void;
@@ -15,18 +15,21 @@ interface PruefargumentFormularProps {
 // Rendert das passende Eingabefeld je nach Typ
 function renderFeld(
   wert: InstanzWert,
+  index: number,
   onChange: (wertId: number, data: Record<string, unknown>) => void,
   kontrolleAbgeschlossen: boolean,
 ) {
+  const label = `${index + 1}: ${wert.bezeichnung}`;
+  const wertWithLabel = { ...wert, bezeichnung: label };
   switch (wert.typ) {
     case 'KONTROLLHAKEN':
-      return <KontrollhakenFeld wert={wert} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
+      return <KontrollhakenFeld wert={wertWithLabel} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     case 'TOLERANZ':
-      return <ToleranzFeld wert={wert} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
+      return <ToleranzFeld wert={wertWithLabel} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     case 'ZAHLWERT':
-      return <ZahlwertFeld wert={wert} onChange={onChange} />;
+      return <ZahlwertFeld wert={wertWithLabel} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     case 'TEXT':
-      return <TextFeld wert={wert} onChange={onChange} />;
+      return <TextFeld wert={wertWithLabel} onChange={onChange} kontrolleAbgeschlossen={kontrolleAbgeschlossen} />;
     default:
       return (
         <Typography variant="body2" color="text.secondary">
@@ -45,17 +48,15 @@ export default function PruefargumentFormular({ werte, onChange, kontrolleAbgesc
     );
   }
 
-  // Werte nach reihenfolge sortieren
   const sortedWerte = [...werte].sort((a, b) => a.reihenfolge - b.reihenfolge);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+    <Grid container spacing={1.5}>
       {sortedWerte.map((wert, index) => (
-        <Box key={wert.id}>
-          {index > 0 && <Divider sx={{ mb: 1.5 }} />}
-          {renderFeld(wert, onChange, kontrolleAbgeschlossen)}
-        </Box>
+        <Grid key={wert.id} size={{ xs: 12, sm: 6 }}>
+          {renderFeld(wert, index, onChange, kontrolleAbgeschlossen)}
+        </Grid>
       ))}
-    </Box>
+    </Grid>
   );
 }

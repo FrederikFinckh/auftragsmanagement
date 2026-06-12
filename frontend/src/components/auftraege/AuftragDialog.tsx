@@ -228,13 +228,14 @@ export default function AuftragDialog({ open, auftrag, onClose, onCreated, onSav
             {!isEdit && (
               <TextField
                 label="Stückzahl"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={stueckzahl}
                 onChange={(e) => setStueckzahl(e.target.value)}
                 required
                 size="small"
                 fullWidth
-                slotProps={{ htmlInput: { min: 1 } }}
+                slotProps={{ htmlInput: { pattern: '[0-9]*' } }}
                 error={!!fieldErrors.stueckzahl}
                 helperText={fieldErrors.stueckzahl}
               />

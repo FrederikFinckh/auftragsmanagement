@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField, Typography, Tooltip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -64,8 +64,12 @@ export default function ToleranzFeld({ wert, onChange, kontrolleAbgeschlossen = 
     }
   }
 
+  const abgeschlossenDisabled = kontrolleAbgeschlossen && !wert.veraltet;
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+    <Tooltip title="Bearbeiten nach abgeschlossener Kontrolle nicht möglich" disableHoverListener={!abgeschlossenDisabled}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, ...(abgeschlossenDisabled && { cursor: 'not-allowed' }) }}>
+      {/* Zeile 1: Bezeichnung + Grenzen + Status-Icon */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <Typography
           variant="body2"
@@ -79,40 +83,36 @@ export default function ToleranzFeld({ wert, onChange, kontrolleAbgeschlossen = 
         >
           {wert.bezeichnung}
         </Typography>
+        <Typography variant="caption" color="text.secondary">
+          (Grenzen: {[min != null ? 'Min: '+min : null, max != null ? 'Max: '+max : null].filter(x=>x!=null).join(', ')}
+        </Typography>
         {statusIcon}
       </Box>
 
-      {/* Referenz-Grenzen als read-only Anzeige */}
-      <Typography variant="body2" color="text.secondary">
-        Grenzen: {min != null ? min : '—'} – {max != null ? max : '—'}
-      </Typography>
-
-      {/* Einzelner Eingabewert mit Validierung */}
-      <TextField
-        type="number"
-        size="small"
-        label="Ist-Wert"
-        value={localValue}
-        onChange={(e) => handleChange(e.target.value)}
-        disabled={wert.veraltet}
-        error={isWithinTolerance === false}
-        fullWidth
-        slotProps={{
-          htmlInput: { step: 'any' },
-        }}
-      />
-
-      {/* Statusanzeige unter dem Feld (nur wenn Kontrolle nicht abgeschlossen) */}
-      {!kontrolleAbgeschlossen && isWithinTolerance === true && (
-        <Typography variant="caption" sx={{ color: 'success.main' }}>
-          In Ordnung – innerhalb der Grenzen
-        </Typography>
-      )}
-      {!kontrolleAbgeschlossen && isWithinTolerance === false && (
-        <Typography variant="caption" color="error">
-          Nicht in Ordnung – außerhalb der Grenzen
-        </Typography>
-      )}
+      {/* Zeile 2: Eingabewert + Validierung */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <TextField
+          type="text"
+          inputMode="decimal"
+          size="small"
+          label="Ist-Wert"
+          value={localValue}
+          onChange={(e) => handleChange(e.target.value)}
+          disabled={wert.veraltet || kontrolleAbgeschlossen}
+          error={isWithinTolerance === false}
+          fullWidth
+        />
+        {!kontrolleAbgeschlossen && isWithinTolerance === true && (
+          <Typography variant="caption" sx={{ color: 'success.main', whiteSpace: 'nowrap' }}>
+            In Ordnung
+          </Typography>
+        )}
+        {!kontrolleAbgeschlossen && isWithinTolerance === false && (
+          <Typography variant="caption" color="error" sx={{ whiteSpace: 'nowrap' }}>
+            Nicht in Ordnung
+          </Typography>
+        )}
+      </Box>
 
       {wert.veraltet && (
         <Typography variant="caption" color="text.disabled">
@@ -120,5 +120,6 @@ export default function ToleranzFeld({ wert, onChange, kontrolleAbgeschlossen = 
         </Typography>
       )}
     </Box>
+    </Tooltip>
   );
 }

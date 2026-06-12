@@ -168,23 +168,27 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
             <Box sx={{ display: 'flex', gap: 0.1, alignItems: 'center' }}>
               <Tooltip title="Min">
                 <TextField
-                  placeholder="Min"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={arg.toleranzMin ?? ''}
                   onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
                   size="small"
-                  sx={{ width: 40 }}
+                  sx={{ width: 70 }}
+                  variant="standard"
+                  slotProps={{ htmlInput: { sx: { textAlign: 'center' } } }}
                 />
               </Tooltip>
               <Typography variant="body2" color="text.secondary">–</Typography>
               <Tooltip title="Max">
                 <TextField
-                  placeholder="Max"
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={arg.toleranzMax ?? ''}
                   onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
                   size="small"
-                  sx={{ width: 40 }}
+                  sx={{ width: 70 }}
+                  variant="standard"
+                  slotProps={{ htmlInput: { sx: { textAlign: 'center' } } }}
                 />
               </Tooltip>
 
@@ -195,11 +199,14 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
           <Tooltip title="Voreingestellter Wert">
             <TextField
               placeholder="Wert"
-              type="number"
+              type="text"
+              inputMode="decimal"
               value={arg.zahlwert ?? ''}
               onChange={(e) => handlePruefargumentChange(index, 'zahlwert', e.target.value === '' ? null : parseFloat(e.target.value))}
               size="small"
               sx={{ width: 100 }}
+              variant="standard"
+              slotProps={{ htmlInput: { sx: { textAlign: 'center' } } }}
             />
           </Tooltip>
         );
@@ -212,6 +219,7 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
               onChange={(e) => handlePruefargumentChange(index, 'textWert', e.target.value)}
               size="small"
               sx={{ minWidth: 120 }}
+              variant="standard"
             />
           </Tooltip>
         );
@@ -309,6 +317,7 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
                 fullWidth
                 variant="standard"
               />
+              <Typography variant="body2" color="text.secondary">: </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {renderWertCell(arg, index)}
               </Box>

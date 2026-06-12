@@ -11,14 +11,15 @@ import { TabProvider } from './context/TabContext';
 // Minimale und maximale Seitenleistenbreite
 const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 600;
-const DEFAULT_SIDEBAR_WIDTH = 250;
+const DEFAULT_LEFT_SIDEBAR_WIDTH = 200;
+const DEFAULT_RIGHT_SIDEBAR_WIDTH = 300;
 
 function App() {
   // Seitenleisten-Zustand
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const [leftWidth, setLeftWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
-  const [rightWidth, setRightWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
+  const [leftWidth, setLeftWidth] = useState(DEFAULT_LEFT_SIDEBAR_WIDTH);
+  const [rightWidth, setRightWidth] = useState(DEFAULT_RIGHT_SIDEBAR_WIDTH);
 
   // Ziehen der linken Seitenleiste
   const handleLeftResize = useCallback((e: React.MouseEvent) => {
