@@ -68,6 +68,7 @@ export default function AuftragTabLeiste() {
                     {label}
                   </Typography>
                   <IconButton
+                    component="span"
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
