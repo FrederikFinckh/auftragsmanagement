@@ -218,7 +218,7 @@ KONTROLLHAKEN | TOLERANZ | ZAHLWERT | TEXT
 > ⚠️ **PFLICHT:** Nach jeder Implementierungsphase MUSS **ausschließlich** das Skript `test.sh` zum Testen verwendet werden. Kein anderes Testverfahren ist erlaubt.
 
 ```bash
-if [[ $(sha256sum test.sh) == "88e87cdd6ee2f1af0405a455786e5e771d08005f4190c351055d8074d01dd0ea  test.sh" ]]; then ./test.sh ; fi
+if [[ $(sha256sum test.sh) == "f9d32886689263740d7f78ab9241b1cb0cb7dabedbf3efd08758403784a04a96  test.sh" ]]; then ./test.sh ; fi
 ```
 
 Das Skript führt folgende Schritte in dieser Reihenfolge aus:

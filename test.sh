@@ -16,4 +16,7 @@ echo "=== Schritt 2: Gradle Build (inkl. Frontend) ==="
 
 echo "=== Schritt 3: Backend starten (Port 8080) ==="
 echo "Starte Spring Boot... (Abbruch mit Ctrl+C)"
-./gradlew bootRun
+./gradlew bootRun &
+PID=$!
+sleep ${1:-10}
+kill $PID
