@@ -262,7 +262,7 @@ export default function MaterialDialog({ open, material, template, onClose, onSa
               <TableRow>
                 <TableCell sx={{ width: 40, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>#</TableCell>
                 <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem', minWidth: 200 }}>Bezeichnung</TableCell>
-                <TableCell sx={{ width: 130, px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Typ</TableCell>
+                <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem', width: 200 }}>Typ</TableCell>
                 <TableCell sx={{ px: 1, py: 0.5, fontWeight: 'bold', fontSize: '0.75rem' }}>Wert</TableCell>
                 <TableCell sx={{ width: 36, px: 1, py: 0.5 }} />
               </TableRow>
@@ -284,11 +284,10 @@ export default function MaterialDialog({ open, material, template, onClose, onSa
                     />
                   </TableCell>
                   <TableCell sx={{ px: 1, py: 0.5 }}>
-                    <FormControl size="small" fullWidth variant="standard">
+                    <FormControl size="small" variant="outlined" sx={{ minWidth: 200 }}>
                       <Select
                         value={arg.typ}
                         onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}
-                        disableUnderline
                       >
                         {typOptions.map((typ) => (
                           <MenuItem key={typ} value={typ} sx={{ fontSize: '0.8rem' }}>

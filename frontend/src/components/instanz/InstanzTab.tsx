@@ -176,26 +176,26 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box>
       {/* Warn-Banner bei materialVeraendert */}
       {instanz.materialVeraendert && (
         <Alert
           severity="warning"
           icon={<WarningIcon />}
-          sx={{ mb: 2 }}
+          sx={{ mb: 1 }}
         >
           Die Materialnummer wurde seit Auftragserstellung geändert
         </Alert>
       )}
 
       {/* Hauptkarte */}
-      <Paper variant="outlined" sx={{ maxWidth: 600 }}>
+      <Paper variant="outlined" sx={{ maxWidth: "100%" }}>
         {/* Karten-Kopfstreifen */}
         <Box
           sx={{
             bgcolor: 'secondary.main',
-            px: 2,
-            py: 1,
+            px: 1.5,
+            py: 0.5,
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
@@ -204,14 +204,14 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
         </Box>
 
         {/* Datentabelle */}
-        <Box sx={{ px: 2, pt: 1 }}>
+        <Box sx={{ px: 1.5, pt: 0.5 }}>
           <InstanzInfoTabelle instanz={instanz} />
         </Box>
 
         <Divider />
 
         {/* Prüfargument-Formular */}
-        <Box sx={{ px: 2, py: 2 }}>
+        <Box sx={{ px: 1.5, py: 1 }}>
           <PruefargumentFormular
             werte={instanz.werte}
             onChange={handleWertChange}
@@ -222,7 +222,7 @@ export default function InstanzTab({ instanzId }: InstanzTabProps) {
         <Divider />
 
         {/* Kontrolle abgeschlossen */}
-        <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ px: 1.5, py: 0.75, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <FormControlLabel
             control={
               <Checkbox

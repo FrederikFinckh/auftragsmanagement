@@ -111,8 +111,8 @@ export default function AuftraegeListe() {
   return (
     <>
       {/* Kopfbereich */}
-      <Box sx={{ bgcolor: 'secondary.main', px: 2, py: 1.5 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }} gutterBottom>
+      <Box sx={{ bgcolor: 'secondary.main', px: 1.5, py: 1 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5 }}>
           Auftragsnummern
         </Typography>
         <TextField
@@ -162,7 +162,7 @@ export default function AuftraegeListe() {
       </Box>
 
       {/* Fußbereich */}
-      <Box sx={{ bgcolor: 'secondary.main', px: 1.5, py: 1 }}>
+      <Box sx={{ bgcolor: 'secondary.main', px: 1, py: 0.75 }}>
         <Button
           variant="contained"
           fullWidth

@@ -15,7 +15,7 @@ export default function AuftragTabLeiste() {
   if (topTabs.length === 0) return null;
 
   return (
-    <Box sx={{ borderBottom: 1, borderColor: 'divider', minHeight: 42, bgcolor: 'background.paper' }}>
+    <Box sx={{ borderBottom: 1, borderColor: 'divider', minHeight: 36, bgcolor: 'background.paper' }}>
       <Tabs
         value={aktiverTopTabId ?? false}
         onChange={(_e, newValue: string) => setAktiverTopTab(newValue)}
@@ -87,7 +87,7 @@ export default function AuftragTabLeiste() {
                 </Box>
               }
               sx={{
-                minHeight: 36,
+                minHeight: 32,
                 textTransform: 'none',
                 bgcolor: bgColor,
                 borderRight: 1,

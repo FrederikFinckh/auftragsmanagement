@@ -39,7 +39,7 @@ function renderFeld(
 export default function PruefargumentFormular({ werte, onChange, kontrolleAbgeschlossen = false }: PruefargumentFormularProps) {
   if (werte.length === 0) {
     return (
-      <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+      <Typography variant="body2" color="text.secondary" sx={{ py: 1, textAlign: 'center' }}>
         Keine Prüfargumente vorhanden
       </Typography>
     );
@@ -49,10 +49,10 @@ export default function PruefargumentFormular({ werte, onChange, kontrolleAbgesc
   const sortedWerte = [...werte].sort((a, b) => a.reihenfolge - b.reihenfolge);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {sortedWerte.map((wert, index) => (
         <Box key={wert.id}>
-          {index > 0 && <Divider sx={{ mb: 2 }} />}
+          {index > 0 && <Divider sx={{ mb: 1.5 }} />}
           {renderFeld(wert, onChange, kontrolleAbgeschlossen)}
         </Box>
       ))}

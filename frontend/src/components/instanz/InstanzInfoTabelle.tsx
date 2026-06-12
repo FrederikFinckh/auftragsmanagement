@@ -16,13 +16,14 @@ export default function InstanzInfoTabelle({ instanz }: InstanzInfoTabelleProps)
             sx={{
               fontWeight: 'bold',
               bgcolor: 'secondary.main',
-              width: '40%',
+              width: '35%',
               border: 0,
+              py: 0.25,
             }}
           >
             Datum:
           </TableCell>
-          <TableCell sx={{ border: 0 }}>
+          <TableCell sx={{ border: 0, py: 0.25 }}>
             {instanz.datum}
           </TableCell>
         </TableRow>
@@ -31,13 +32,14 @@ export default function InstanzInfoTabelle({ instanz }: InstanzInfoTabelleProps)
             sx={{
               fontWeight: 'bold',
               bgcolor: 'secondary.main',
-              width: '40%',
+              width: '35%',
               border: 0,
+              py: 0.25,
             }}
           >
             Auftragsnummer:
           </TableCell>
-          <TableCell sx={{ border: 0 }}>
+          <TableCell sx={{ border: 0, py: 0.25 }}>
             {instanz.auftragsnummer}
           </TableCell>
         </TableRow>
@@ -46,13 +48,14 @@ export default function InstanzInfoTabelle({ instanz }: InstanzInfoTabelleProps)
             sx={{
               fontWeight: 'bold',
               bgcolor: 'secondary.main',
-              width: '40%',
+              width: '35%',
               border: 0,
+              py: 0.25,
             }}
           >
             Kunde:
           </TableCell>
-          <TableCell sx={{ border: 0 }}>
+          <TableCell sx={{ border: 0, py: 0.25 }}>
             {instanz.kunde || '—'}
           </TableCell>
         </TableRow>
@@ -61,13 +64,14 @@ export default function InstanzInfoTabelle({ instanz }: InstanzInfoTabelleProps)
             sx={{
               fontWeight: 'bold',
               bgcolor: 'secondary.main',
-              width: '40%',
+              width: '35%',
               border: 0,
+              py: 0.25,
             }}
           >
             Materialnummer:
           </TableCell>
-          <TableCell sx={{ border: 0 }}>
+          <TableCell sx={{ border: 0, py: 0.25 }}>
             {instanz.materialnummerNummer || '—'}
           </TableCell>
         </TableRow>

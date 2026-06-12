@@ -157,7 +157,7 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
                   size="small"
                 />
               }
-              label={arg.bezeichnung || 'Kontrollhäkchen'}
+              label={'OK'}
               sx={{ mr: 0 }}
               slotProps={{ typography: { variant: 'body2' } }}
             />
@@ -165,27 +165,30 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
         );
       case 'TOLERANZ':
         return (
-          <Tooltip title="Voreingestellter Wert">
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <TextField
-                placeholder="Min"
-                type="number"
-                value={arg.toleranzMin ?? ''}
-                onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
-                size="small"
-                sx={{ width: 80 }}
-              />
+            <Box sx={{ display: 'flex', gap: 0.1, alignItems: 'center' }}>
+              <Tooltip title="Min">
+                <TextField
+                  placeholder="Min"
+                  type="number"
+                  value={arg.toleranzMin ?? ''}
+                  onChange={(e) => handlePruefargumentChange(index, 'toleranzMin', e.target.value === '' ? null : parseFloat(e.target.value))}
+                  size="small"
+                  sx={{ width: 40 }}
+                />
+              </Tooltip>
               <Typography variant="body2" color="text.secondary">–</Typography>
-              <TextField
-                placeholder="Max"
-                type="number"
-                value={arg.toleranzMax ?? ''}
-                onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
-                size="small"
-                sx={{ width: 80 }}
-              />
-            </Box>
-          </Tooltip>
+              <Tooltip title="Max">
+                <TextField
+                  placeholder="Max"
+                  type="number"
+                  value={arg.toleranzMax ?? ''}
+                  onChange={(e) => handlePruefargumentChange(index, 'toleranzMax', e.target.value === '' ? null : parseFloat(e.target.value))}
+                  size="small"
+                  sx={{ width: 40 }}
+                />
+              </Tooltip>
+
+      </Box>
         );
       case 'ZAHLWERT':
         return (
@@ -226,7 +229,7 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: "100%" }}>
+    <Box sx={{ p: 1, maxWidth: "100%" }}>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -279,13 +282,13 @@ export default function MaterialTab({ tab }: MaterialTabProps) {
           Noch keine Prüfargumente hinzugefügt
         </Typography>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.2 }}>
           {pruefargumente.map((arg, index) => (
-            <Paper key={index} variant="outlined" sx={{ px: 1, py: 0.25, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Paper key={index} variant="outlined" sx={{ px: 0.5, py: 0.25, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="caption" color="text.secondary" sx={{ minWidth: 20 }}>
                 {index + 1}
               </Typography>
-              <FormControl size="small" variant="standard" sx={{ minWidth: 90 }}>
+              <FormControl size="small" variant="standard" sx={{ minWidth: 95 }}>
                 <Select
                   value={arg.typ}
                   onChange={(e) => handlePruefargumentChange(index, 'typ', e.target.value)}

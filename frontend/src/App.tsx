@@ -9,9 +9,9 @@ import MitteBereich from './components/mitte/MitteBereich';
 import { TabProvider } from './context/TabContext';
 
 // Minimale und maximale Seitenleistenbreite
-const MIN_SIDEBAR_WIDTH = 200;
+const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 600;
-const DEFAULT_SIDEBAR_WIDTH = 350;
+const DEFAULT_SIDEBAR_WIDTH = 250;
 
 function App() {
   // Seitenleisten-Zustand

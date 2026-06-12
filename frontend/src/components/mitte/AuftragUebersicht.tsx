@@ -102,9 +102,9 @@ export default function AuftragUebersicht() {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 1 }}>
       {/* Kopfzeile mit Instanzen-Anzahl und Hinzufügen-Button */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
           {instanzen.length} {instanzen.length === 1 ? 'Instanz' : 'Instanzen'}
         </Typography>
@@ -123,7 +123,7 @@ export default function AuftragUebersicht() {
           Keine Instanzen vorhanden
         </Typography>
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={1}>
           {instanzen.map((instanz) => (
             <Grid key={instanz.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
               <InstanzKarte

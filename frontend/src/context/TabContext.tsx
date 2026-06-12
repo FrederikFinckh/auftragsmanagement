@@ -91,7 +91,6 @@ export function TabProvider({ children }: { children: ReactNode }) {
     setTopTabs((prev) => {
       const exists = prev.some((t) => t.type === 'instanz' && t.instanzId === instanzId);
       if (exists) return prev;
-      const auftragExists = prev.some((t) => t.type === 'auftrag' && t.auftragId === auftrag.id);
       const newTab: InstanzTabData = {
         type: 'instanz',
         tabId,
@@ -100,11 +99,7 @@ export function TabProvider({ children }: { children: ReactNode }) {
         auftragsnummer: auftrag.auftragsnummer,
         auftragId: auftrag.id,
       };
-      if (auftragExists) {
-        return [...prev, newTab];
-      }
-      const auftragTab: AuftragTab = { type: 'auftrag', auftragId: auftrag.id, auftragsnummer: auftrag.auftragsnummer };
-      return [...prev, auftragTab, newTab];
+      return [...prev, newTab];
     });
     setAktiverTopTabId(tabId);
   }, []);

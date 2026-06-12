@@ -53,8 +53,8 @@ export default function AuftragItem({ auftrag, onEdit, onDelete, onInstanzClick 
         sx={{
           display: 'flex',
           alignItems: 'center',
-          px: 1.5,
-          py: 0.75,
+          px: 1,
+          py: 0.5,
           bgcolor: 'action.hover',
           cursor: 'pointer',
         }}
@@ -102,7 +102,7 @@ export default function AuftragItem({ auftrag, onEdit, onDelete, onInstanzClick 
             instanzen.map((inst) => (
               <ListItemButton
                 key={inst.id}
-                sx={{ pl: 4, py: 0.25 }}
+                sx={{ pl: 3, py: 0.15 }}
                 onClick={() => onInstanzClick(auftrag, inst.id, inst.nummer)}
               >
                 <ListItemText

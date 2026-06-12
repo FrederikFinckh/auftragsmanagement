@@ -5,7 +5,7 @@ export type PruefargumentTyp = 'KONTROLLHAKEN' | 'TOLERANZ' | 'ZAHLWERT' | 'TEXT
 
 // Typbezeichnungen für die Anzeige
 export const PRUEFARGUMENT_TYP_LABELS: Record<PruefargumentTyp, string> = {
-  KONTROLLHAKEN: 'Kontrollhaken',
+  KONTROLLHAKEN: 'Haken',
   TOLERANZ: 'Toleranz',
   ZAHLWERT: 'Zahlwert',
   TEXT: 'Text',

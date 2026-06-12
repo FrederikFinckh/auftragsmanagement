@@ -8,6 +8,32 @@ import { PRUEFARGUMENT_TYP_LABELS } from '../../types/material';
 import type { InstanzUebersicht, InstanzWert } from '../../types/instanz';
 import type { PruefargumentTyp } from '../../types/material';
 
+// Prüft ob ein einzelner InstanzWert durchgefallen ist
+function istWertFehlgeschlagen(wert: InstanzWert): boolean {
+  if (wert.veraltet) return false;
+  switch (wert.typ) {
+    case 'KONTROLLHAKEN':
+      return wert.kontrollhakenWert === false;
+    case 'TOLERANZ': {
+      if (wert.zahlwert == null) return true;
+      if (wert.toleranzMin != null && wert.toleranzMax != null) {
+        return wert.zahlwert < wert.toleranzMin || wert.zahlwert > wert.toleranzMax;
+      }
+      return false;
+    }
+    case 'ZAHLWERT':
+    case 'TEXT':
+      return false;
+    default:
+      return false;
+  }
+}
+
+// Prüft ob irgend ein Prüfargument der Instanz durchgefallen ist
+function hatFehlgeschlageneWerte(instanz: InstanzUebersicht): boolean {
+  return instanz.werte.some(istWertFehlgeschlagen);
+}
+
 // Einzelne Übersichtskarte einer Instanz
 interface InstanzKarteProps {
   instanz: InstanzUebersicht;
@@ -33,8 +59,8 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick, o
       <Box
         sx={{
           bgcolor: 'secondary.main',
-          px: 1.5,
-          py: 0.75,
+          px: 1,
+          py: 0.5,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -58,7 +84,9 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick, o
           {instanz.materialVeraendert && (
             <WarningIcon sx={{ color: 'warning.main', fontSize: 18 }} />
           )}
-          {instanz.kontrolleAbgeschlossen ? (
+          {instanz.kontrolleAbgeschlossen && hatFehlgeschlageneWerte(instanz) ? (
+            <CancelIcon sx={{ color: 'error.main', fontSize: 20 }} />
+          ) : instanz.kontrolleAbgeschlossen ? (
             <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
           ) : (
             <RadioButtonUncheckedIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
@@ -67,10 +95,10 @@ export default function InstanzKarte({ instanz, materialnummerNummer, onClick, o
       </Box>
 
       {/* Karten-Körper */}
-      <Box sx={{ p: 1.5 }}>
+      <Box sx={{ p: 1 }}>
         {/* Materialnummer */}
         {materialnummerNummer && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
             {materialnummerNummer}
           </Typography>
         )}
