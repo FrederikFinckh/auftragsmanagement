@@ -43,7 +43,7 @@ jobs:
         run: ./gradlew build
 
       - name: Upload JAR
-        if: github.event_name == 'workflow_call' && inputs.upload-jar
+        if: inputs.upload-jar
         uses: actions/upload-artifact@v7
         with:
           name: Auftragsmanager
